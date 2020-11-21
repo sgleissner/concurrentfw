@@ -19,12 +19,14 @@
 // force inline code
 #define ALWAYS_INLINE inline __attribute__((always_inline))
 
-// count leading zeroes
-#define CLZ(x) __builtin_clz(x)		/* x must not be 0 */
-
-
 namespace ConcurrentFW
 {
+
+// prevent compiler reordering, does not affect CPU reordering
+static ALWAYS_INLINE void compiler_barrier()
+{
+	asm volatile("" ::: "memory");
+}
 
 enum class PlatformWidth : unsigned char
 {

@@ -62,7 +62,7 @@ JOBS=$(nproc)
 make -j $JOBS || failure "make"
 
 # separator "install"
-# sudo make install || failure "install"
+# sudo make install-strip || failure "install"
 
 popd
 

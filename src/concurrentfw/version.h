@@ -6,7 +6,6 @@
  * This file is distributed under the ISC license, see file LICENSE.
  */
 
-
 #ifndef CONCURRENTFW_VERSION_H_
 #define CONCURRENTFW_VERSION_H_
 
@@ -30,7 +29,7 @@ namespace ConcurrentFW
 						? parse_int(version,0)
 						: search_int(&version[1], version[0]=='.' ? part-1 : part);
 		}
-	} // namespace ConcurrentFW::StringMagic
+	} // namespace ConcurrentFW::VersionParser
 
 	enum Version : uint16_t
 	{

@@ -1,5 +1,5 @@
 # configure autoconf & automake
-AC_INIT([concurrentfw], [0.0.1], [bugs@concurrentfw.de], [concurrentfw], [http://concurrentfw.de])
+AC_INIT([concurrentfw], [0.0.2], [bugs@concurrentfw.de], [concurrentfw], [http://concurrentfw.de])
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_FILES([Makefile libconcurrentfw.pc])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])

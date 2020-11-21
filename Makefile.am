@@ -22,10 +22,7 @@ if CPU_UNDEFINED
 OPTIONS_CPU=
 endif
 
-# install headers into /usr/include/<pkgname>/
-
-# concurrentfwincludedir = $(includedir)/concurrentfw
-# concurrentfwinclude_HEADERS =
+# install headers into $(includedir)/concurrentfw
 pkginclude_HEADERS = \
 	src/concurrentfw/atomic_asm_dwcas_llsc.h		\
 	src/concurrentfw/atomic_asm_x86.h				\
@@ -40,25 +37,19 @@ pkginclude_HEADERS = \
 
 
 # shared library
-
 lib_LTLIBRARIES = libconcurrentfw.la
 
-# -isystem src -isystem $(CURDIR)/src
-
-# libconcurrentfw_la_LIBADD   = $(LIB_KPARTS)
 libconcurrentfw_la_CPPFLAGS = $(all_includes) -I src -I$(top_srcdir)/src
 libconcurrentfw_la_CXXFLAGS = -Wall -Wextra -Wpedantic -O3 $(OPTIONS_CPU)
 libconcurrentfw_la_LDFLAGS  = $(all_libraries)
 libconcurrentfw_la_SOURCES  = \
 	src/futex.cpp
 
-#SUBDIRS = src
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libconcurrentfw.pc
 
 
 # test application
-
 bin_PROGRAMS = concurrentfw_test
 
 concurrentfw_test_CPPFLAGS = $(all_includes) -I src -I$(top_srcdir)/src
@@ -68,9 +59,8 @@ concurrentfw_test_SOURCES  =			\
 	src/test/test_main.cpp				\
 	src/test/test_benchmark_futex.cpp	\
 	src/test/test_aba.cpp
-	
-# cppcheck target (static code analysis)
 
+# cppcheck target (static code analysis)
 CPPCHECK=cppcheck
 
 # --enable=warning,performance,portability,information
