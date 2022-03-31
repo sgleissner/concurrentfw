@@ -1,7 +1,7 @@
 /*
  * test_main.cpp
  *
- * (C) 2017-2020 by Simon Gleissner <simon@gleissner.de>, http://concurrentfw.de
+ * (C) 2017-2022 by Simon Gleissner <simon@gleissner.de>, http://concurrentfw.de
  *
  * This file is distributed under the ISC license, see file LICENSE.
  */
@@ -19,7 +19,7 @@ void print_version()
 	std::cout << std::endl << "Tests & benchmarks for version "
 		<< ConcurrentFW::Version::MAJOR << "."
 		<< ConcurrentFW::Version::MINOR << "."
-		<< ConcurrentFW::Version::REVISION << std::endl;
+		<< ConcurrentFW::Version::PATCH << std::endl;
 }
 
 void print_test_header(const char* const name)

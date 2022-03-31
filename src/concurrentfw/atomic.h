@@ -1,7 +1,7 @@
 /*
  * concurrentfw/atomic.h
  *
- * (C) 2017-2020 by Simon Gleissner <simon@gleissner.de>, http://concurrentfw.de
+ * (C) 2017-2022 by Simon Gleissner <simon@gleissner.de>, http://concurrentfw.de
  *
  * This file is distributed under the ISC license, see file LICENSE.
  */
@@ -57,20 +57,22 @@ concept AtomicMemoryOrderStore =
 		(MEMORDER==AtomicMemoryOrder::SEQ_CST) ||
 		(MEMORDER==AtomicMemoryOrder::RELEASE);
 
-template<AtomicMemoryOrder MEMORDER>
-concept AtomicMemoryOrderExchange =
-		(MEMORDER==AtomicMemoryOrder::RELAXED) ||
-		(MEMORDER==AtomicMemoryOrder::SEQ_CST) ||
-		(MEMORDER==AtomicMemoryOrder::ACQUIRE) ||
-		(MEMORDER==AtomicMemoryOrder::RELEASE) ||
-		(MEMORDER==AtomicMemoryOrder::ACQ_REL);
-
 template<AtomicMemoryOrder MEMORDER_SUCCESS, AtomicMemoryOrder MEMORDER_FAILURE>
 concept AtomicMemoryOrderCompareExchange =
 		(MEMORDER_FAILURE==AtomicMemoryOrder::RELAXED) ||
-		((MEMORDER_FAILURE==AtomicMemoryOrder::CONSUME) && ((MEMORDER_SUCCESS==AtomicMemoryOrder::SEQ_CST) || (MEMORDER_SUCCESS==AtomicMemoryOrder::ACQUIRE) || (MEMORDER_SUCCESS==AtomicMemoryOrder::ACQ_REL) || (MEMORDER_SUCCESS==AtomicMemoryOrder::RELEASE) || (MEMORDER_SUCCESS==AtomicMemoryOrder::CONSUME))) ||
-		((MEMORDER_FAILURE==AtomicMemoryOrder::ACQUIRE) && ((MEMORDER_SUCCESS==AtomicMemoryOrder::SEQ_CST) || (MEMORDER_SUCCESS==AtomicMemoryOrder::ACQUIRE) || (MEMORDER_SUCCESS==AtomicMemoryOrder::ACQ_REL) || (MEMORDER_SUCCESS==AtomicMemoryOrder::RELEASE))) ||
-		((MEMORDER_FAILURE==AtomicMemoryOrder::SEQ_CST) && (MEMORDER_SUCCESS==AtomicMemoryOrder::SEQ_CST));
+		((MEMORDER_FAILURE==AtomicMemoryOrder::CONSUME) &&
+				((MEMORDER_SUCCESS==AtomicMemoryOrder::SEQ_CST) ||
+				(MEMORDER_SUCCESS==AtomicMemoryOrder::ACQUIRE) ||
+				(MEMORDER_SUCCESS==AtomicMemoryOrder::ACQ_REL) ||
+				(MEMORDER_SUCCESS==AtomicMemoryOrder::RELEASE) ||
+				(MEMORDER_SUCCESS==AtomicMemoryOrder::CONSUME))) ||
+		((MEMORDER_FAILURE==AtomicMemoryOrder::ACQUIRE) &&
+				((MEMORDER_SUCCESS==AtomicMemoryOrder::SEQ_CST) ||
+				(MEMORDER_SUCCESS==AtomicMemoryOrder::ACQUIRE) ||
+				(MEMORDER_SUCCESS==AtomicMemoryOrder::ACQ_REL) ||
+				(MEMORDER_SUCCESS==AtomicMemoryOrder::RELEASE))) ||
+		((MEMORDER_FAILURE==AtomicMemoryOrder::SEQ_CST) &&
+				(MEMORDER_SUCCESS==AtomicMemoryOrder::SEQ_CST));
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -132,7 +134,6 @@ struct alignas(sizeof(T)) Atomic
 	//////////////////////////////////////////////////////////////////////////
 
 	template<AtomicMemoryOrder MEMORDER = AtomicMemoryOrder::SEQ_CST>
-		requires AtomicMemoryOrderExchange<MEMORDER>
 	ALWAYS_INLINE T exchange(const T exchange) noexcept
 	{
 		compiler_barrier();
@@ -146,7 +147,7 @@ struct alignas(sizeof(T)) Atomic
 	ALWAYS_INLINE bool compare_exchange_weak(T& expected, const T desired) noexcept
 	{
 		compiler_barrier();
-		bool retval = __atomic_compare_exchange_n(&atomic, &expected, desired, true, MEMORDER_SUCCESS, MEMORDER_FAILURE);
+		bool retval = __atomic_compare_exchange_n(&atomic, &expected, desired, true /* weak */, MEMORDER_SUCCESS, MEMORDER_FAILURE);
 		compiler_barrier();
 		return retval;
 	}
@@ -156,7 +157,7 @@ struct alignas(sizeof(T)) Atomic
 	ALWAYS_INLINE bool compare_exchange_strong(T& expected, const T desired) noexcept
 	{
 		compiler_barrier();
-		bool retval = __atomic_compare_exchange_n(&atomic, &expected, desired, false, MEMORDER_SUCCESS, MEMORDER_FAILURE);
+		bool retval = __atomic_compare_exchange_n(&atomic, &expected, desired, false /* strong */, MEMORDER_SUCCESS, MEMORDER_FAILURE);
 		compiler_barrier();
 		return retval;
 	}
@@ -280,6 +281,7 @@ struct alignas(sizeof(T)) Atomic
 	template<AtomicMemoryOrder MEMORDER = AtomicMemoryOrder::SEQ_CST>
 	ALWAYS_INLINE bool test_and_set() noexcept
 	{
+		static_assert(sizeof(T)==1, "<T> shall only be char or bool with test_and_set()");
 		compiler_barrier();
 		T retval = __atomic_test_and_set(&atomic, MEMORDER);
 		compiler_barrier();
@@ -290,6 +292,7 @@ struct alignas(sizeof(T)) Atomic
 		requires AtomicMemoryOrderStore<MEMORDER>
 	ALWAYS_INLINE void clear() noexcept
 	{
+		static_assert(sizeof(T)==1, "<T> shall only be char or bool with clear()");
 		compiler_barrier();
 		__atomic_clear(&atomic, MEMORDER);
 		compiler_barrier();

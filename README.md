@@ -3,7 +3,7 @@ Concurrency C++ framework for Linux
 
 published under the ISC license, see file LICENSE.
 
-(c) 2017-2020 Simon Gleissner <simon@gleissner.de>, http://concurrentfw.de
+(c) 2017-2022 Simon Gleissner <simon@gleissner.de>, http://concurrentfw.de
 
 
 hardware-dependencies:

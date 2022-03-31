@@ -1,7 +1,7 @@
 /*
  * test_aba.cpp
  *
- * (C) 2017-2020 by Simon Gleissner <simon@gleissner.de>, http://concurrentfw.de
+ * (C) 2017-2022 by Simon Gleissner <simon@gleissner.de>, http://concurrentfw.de
  *
  * This file is distributed under the ISC license, see file LICENSE.
  */
@@ -9,7 +9,7 @@
 #include <iostream>
 #include <cstdint>
 
-#include "../concurrentfw/concurrent_ptr.h"
+#include <concurrentfw/concurrent_ptr.h>
 #include "test_32bit.h"
 
 

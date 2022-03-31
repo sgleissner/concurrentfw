@@ -1,7 +1,7 @@
 /*
  * concurrentfw/helper.h
  *
- * (C) 2017-2020 by Simon Gleissner <simon@gleissner.de>, http://concurrentfw.de
+ * (C) 2017-2022 by Simon Gleissner <simon@gleissner.de>, http://concurrentfw.de
  *
  * This file is distributed under the ISC license, see file LICENSE.
  */

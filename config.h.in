@@ -1,0 +1,19 @@
+/*
+ * concurrentfw/config.h
+ *
+ * (C) 2017-2022 by Simon Gleissner <simon@gleissner.de>, http://concurrentfw.de
+ *
+ * This file is distributed under the ISC license, see file LICENSE.
+ *
+ * This is a generated file, do not edit!
+ */
+
+#ifndef CONCURRENTFW_CONFIG_H
+#define CONCURRENTFW_CONFIG_H
+
+#define CONCURRENTFW_VERSION_MAJOR @PROJECT_VERSION_MAJOR@
+#define CONCURRENTFW_VERSION_MINOR @PROJECT_VERSION_MINOR@
+#define CONCURRENTFW_VERSION_PATCH @PROJECT_VERSION_PATCH@
+#define CONCURRENTFW_VERSION_TWEAK @PROJECT_VERSION_TWEAK@
+
+#endif //CONCURRENTFW_CONFIG_H
