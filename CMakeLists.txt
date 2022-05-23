@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.21)
 # TODO: more robust install
 
 project(concurrentfw
-        VERSION 0.0.3
+        VERSION 0.0.4
         DESCRIPTION "Concurrent Framework"
         HOMEPAGE_URL "http://concurrentfw.de"
         LANGUAGES CXX
@@ -22,7 +22,7 @@ if("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
 elseif("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "i686")
     message(FATAL_ERROR "${CMAKE_SYSTEM_PROCESSOR}: not yet supported")
 elseif("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "aarch64")
-    message(FATAL_ERROR "${CMAKE_SYSTEM_PROCESSOR}: not yet supported")
+    add_compile_options(-march=armv8-a -mtune=cortex-a72) # Minimum architecure should be a RasPi 4
 elseif("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm")
     message(FATAL_ERROR "${CMAKE_SYSTEM_PROCESSOR}: not yet supported")
 else()
@@ -94,7 +94,7 @@ install(TARGETS concurrentfw concurrentfw-static concurrentfw-test
         PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/concurrentfw
 )
 
-message(WARNING "${CMAKE_INSTALL_DATAROOTDIR}")
+# message(WARNING "${CMAKE_INSTALL_DATAROOTDIR}")
 
 install(FILES ${CMAKE_BINARY_DIR}/libconcurrentfw.pc
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
