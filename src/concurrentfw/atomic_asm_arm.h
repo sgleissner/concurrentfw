@@ -23,6 +23,9 @@
 #error "ARMv7 or higher needed"
 #endif
 
+// ARM LL/SC sequences shall be localized within one cache line for best performance
+#define GNU_OPTIMIZE_ATOMIC_LOOPS_ALIGNMENT "align-loops=64"
+
 // "For reasons of performance, keep the number of instructions between corresponding LDREX and STREX instructions to a minimum."
 // http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0204f/Cihbghef.html
 

@@ -103,16 +103,20 @@ public:
 		}
 	}
 
+// align loop to 64 byte on LLSC platforms
+// align loops to 1 byte on Intel platform (as loop is UNLIKELY)
+// https://stackoverflow.com/questions/7281699/aligning-to-cache-line-and-knowing-the-cache-line-size
+
 	template<typename... ARGS>
-	inline bool modify [[gnu::always_inline, gnu::optimize("align-loops=1")]] (
+	inline bool modify [[gnu::always_inline, gnu::optimize(GNU_OPTIMIZE_ATOMIC_LOOPS_ALIGNMENT)]] (
 			bool (*modifier_func)(const T&, T&, ARGS...),
 			ARGS... args)
 	{
 		bool success;
+		bool stored;
 
 		if constexpr(ABA_IS_PLATFORM_DWCAS)
 		{
-			bool repeat;
 			ABA_Wrapper cache;
 			atomic_dw_load(atomic, cache.atomic);
 
@@ -121,18 +125,16 @@ public:
 				ABA_Wrapper desired;
 
 				success = modifier_func(cache.data, desired.data, args...);		// will be inlined
-				if(success == false) [[unlikely]]
+				if(!success) [[unlikely]]
 					break;
 
 				desired.atomic[1] = cache.atomic[1] + 1;
-				repeat = atomic_dw_cas(atomic, cache.atomic, desired.atomic);
+				stored = atomic_dw_cas(atomic, cache.atomic, desired.atomic);
 			}
-			while(UNLIKELY(repeat==false));
+			while(UNLIKELY(!stored));
 		}
 		else // constexpr(LLSC)
 		{
-			bool repeat;
-
 			do
 			{
 				ABA_Wrapper desired;
@@ -140,15 +142,15 @@ public:
 				atomic_exclusive_load_aquire(atomic[0], cache.atomic[0]);
 
 				success = modifier_func(cache.data, desired.data, args...);		// will be inlined
-				if(success == false) [[unlikely]]
+				if(!success) [[unlikely]]
 				{
 					atomic_exclusive_abort(atomic[0]);
 					break;
 				}
 
-				repeat = atomic_exclusive_store_release(atomic[0], desired.atomic[0]);
+                stored = atomic_exclusive_store_release(atomic[0], desired.atomic[0]);
 			}
-			while(UNLIKELY(repeat==false));
+			while(UNLIKELY(!stored));
 		}
 
 		return success;
