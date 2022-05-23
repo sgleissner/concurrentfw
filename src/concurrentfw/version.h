@@ -16,11 +16,11 @@
 namespace ConcurrentFW
 {
 
-enum Version : uint16_t
+struct Version
 {
-	MAJOR = CONCURRENTFW_VERSION_MAJOR,
-	MINOR = CONCURRENTFW_VERSION_MINOR,
-	PATCH = CONCURRENTFW_VERSION_PATCH
+	static constexpr uint16_t MAJOR {CONCURRENTFW_VERSION_MAJOR};
+	static constexpr uint16_t MINOR {CONCURRENTFW_VERSION_MINOR};
+	static constexpr uint16_t PATCH {CONCURRENTFW_VERSION_PATCH};
 	// CONCURRENTFW_VERSION_TWEAK not used
 };
 
