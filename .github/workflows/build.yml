@@ -8,9 +8,9 @@ on:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04  # was: ubuntu-latest = 20.04 - sgl 2022-10-13
     env:
-      SONAR_SCANNER_VERSION: 4.7.0.2747
+      SONAR_SCANNER_VERSION: 4.7.0.2747 # sgl 2022-10-13
       SONAR_SERVER_URL: "https://sonarcloud.io"
       BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
     steps:
