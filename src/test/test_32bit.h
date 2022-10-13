@@ -17,7 +17,7 @@ class Test32Bit
 {
 public:
 	Test32Bit(int32_t init = 0)
-	:	test(init)
+	: test(init)
 	{}
 
 	void set(int32_t const value);
@@ -37,11 +37,11 @@ public:
 void Test32Bit::set(int32_t const value)
 {
 	bool (*inlined_modify_func)(const int32_t&, int32_t&, const int32_t) =	// implicit conversion
-			[](const int32_t& /* ptr_cached */, int32_t& value_modify, const int32_t value_init) -> bool
-			{
-				value_modify = value_init;
-				return true;
-			};
+		[](const int32_t& /* ptr_cached */, int32_t& value_modify, const int32_t value_init) -> bool
+	{
+		value_modify = value_init;
+		return true;
+	};
 
 	test.modify(inlined_modify_func, value);
 }

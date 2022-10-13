@@ -16,15 +16,14 @@ void test_benchmark_futex();
 
 void print_version()
 {
-	std::cout << std::endl << "Tests & benchmarks for version "
-		<< ConcurrentFW::Version::MAJOR << "."
-		<< ConcurrentFW::Version::MINOR << "."
-		<< ConcurrentFW::Version::PATCH << std::endl;
+	std::cout << std::endl
+			  << "Tests & benchmarks for version " << ConcurrentFW::Version::MAJOR << "."
+			  << ConcurrentFW::Version::MINOR << "." << ConcurrentFW::Version::PATCH << std::endl;
 }
 
 void print_test_header(const char* const name)
 {
-	static uint32_t test_nr=0;
+	static uint32_t test_nr = 0;
 
 	test_nr++;
 

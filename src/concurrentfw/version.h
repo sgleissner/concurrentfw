@@ -24,6 +24,6 @@ struct Version
 	// CONCURRENTFW_VERSION_TWEAK not used
 };
 
-}	// namespace ConcurrentFW
+}  // namespace ConcurrentFW
 
 #endif /* CONCURRENTFW_VERSION_H_ */

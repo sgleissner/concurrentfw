@@ -10,26 +10,35 @@ project(concurrentfw
         DESCRIPTION "Concurrent Framework"
         HOMEPAGE_URL "http://concurrentfw.de"
         LANGUAGES CXX
-)
+        )
 
 include(GNUInstallDirs)
 
 set(CMAKE_CXX_STANDARD 20)
 # set(CMAKE_CXX_CPPCHECK "cppcheck")
 
-if("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
-    add_compile_options(-mcx16 -mmmx -msse -msse2 -msse3)
-elseif("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "i686")
-    message(FATAL_ERROR "${CMAKE_SYSTEM_PROCESSOR}: not yet supported")
-elseif("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "aarch64")
-    add_compile_options(-march=armv8-a -mtune=cortex-a72) # Minimum architecure should be a RasPi 4
-elseif("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm")
-    message(FATAL_ERROR "${CMAKE_SYSTEM_PROCESSOR}: not yet supported")
-else()
-    message(FATAL_ERROR "${CMAKE_SYSTEM_PROCESSOR}: unsupported architecture")
-endif()
+#execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpmachine
+#    OUTPUT_VARIABLE DUMPMACHINE)
 
-add_compile_options(-Wall -Wextra -Wpedantic -O3)
+if ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
+    add_compile_options(-mcx16 -mmmx -msse -msse2 -msse3)
+elseif ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "i686")
+    message(FATAL_ERROR "${CMAKE_SYSTEM_PROCESSOR}: not yet supported")
+elseif ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "aarch64")
+    add_compile_options(-march=armv8-a -mtune=cortex-a72) # Minimum architecure should be a RasPi 4
+elseif ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm")
+    message(FATAL_ERROR "${CMAKE_SYSTEM_PROCESSOR}: not yet supported")
+else ()
+    message(FATAL_ERROR "${CMAKE_SYSTEM_PROCESSOR}: unsupported architecture")
+endif ()
+
+add_compile_options(
+        -Wall
+        -Wextra
+        -Wpedantic
+        -O3
+        -Wno-terminate
+)
 
 set(public_headers
     src/concurrentfw/atomic_asm_dwcas_llsc.h

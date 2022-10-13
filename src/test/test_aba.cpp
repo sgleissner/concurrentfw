@@ -15,7 +15,6 @@
 
 void test_aba()
 {
-
 	ConcurrentFW::Concurrent_Ptr<uint16_t> test;
 
 	std::cout << "Alignment: " << ConcurrentFW::ABA_ATOMIC_ALIGNMENT<uint16_t> << std::endl;
@@ -37,7 +36,5 @@ void test_aba()
 
 	test32.set(-2000000000);
 
-	std::cout << "32-Bit Test: "<< test32.get() << " " << test32.get_counter() << std::endl;
-
+	std::cout << "32-Bit Test: " << test32.get() << " " << test32.get_counter() << std::endl;
 }
-

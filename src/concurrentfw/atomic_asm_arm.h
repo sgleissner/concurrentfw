@@ -44,20 +44,20 @@ namespace ConcurrentFW
 
 inline static void atomic_exclusive_abort(volatile uint64_t& /*atomic*/)
 {
-	asm volatile
+	asm volatile  // clang-format off
 	(
 		"clrex"
-	);
+	);  // clang-format on
 }
 
 #endif
 
 inline static void atomic_exclusive_abort(volatile uint32_t& /*atomic*/)
 {
-	asm volatile
+	asm volatile  // clang-format off
 	(
 		"clrex"
-	);
+	);  // clang-format on
 }
 
 #if defined(__aarch64__)
@@ -69,24 +69,24 @@ inline static void atomic_exclusive_abort(volatile uint32_t& /*atomic*/)
 
 inline static void atomic_exclusive_load_aquire(volatile uint64_t& atomic, uint64_t& target)
 {
-	asm volatile
+	asm volatile  // clang-format off
 	(
 		"ldaxr %0, [%1]"
 		: "=r" (target)
 		: "r" (&atomic)
 		:
-	);
+	);	// clang-format on
 }
 
 inline static void atomic_exclusive_load_aquire(volatile uint32_t& atomic, uint32_t& target)
 {
-	asm volatile
+	asm volatile  // clang-format off
 	(
 		"ldaxr %w0, [%1]"
 		: "=r" (target)
 		: "r" (&atomic)
 		:
-	);
+	);	// clang-format on
 }
 
 // stlxr documentation
@@ -95,78 +95,78 @@ inline static void atomic_exclusive_load_aquire(volatile uint32_t& atomic, uint3
 inline static bool atomic_exclusive_store_release(volatile uint64_t& atomic, const uint64_t& store)
 {
 	bool failed;
-	asm volatile
+	asm volatile  // clang-format off
 	(
 		"stlxr %w0, %1, [%2]"
 		: "=r" (failed)
 		: "r" (store)
 		, "r" (&atomic)
 		:
-	);
+	);	// clang-format on
 	return !failed;
 }
 
 inline static bool atomic_exclusive_store_release(volatile uint32_t& atomic, const uint32_t& store)
 {
 	bool failed;
-	asm volatile
+	asm volatile  // clang-format off
 	(
 		"stlxr %w0, %w1, [%2]"
 		: "=r" (failed)
 		: "r" (store)
 		, "r" (&atomic)
 		:
-	);
+	);	// clang-format on
 	return !failed;
 }
 
-#elif defined (__arm__)
+#elif defined(__arm__)
 
-#if __ARM_ARCH >= 8	// ARMv8 and higher
+#if __ARM_ARCH >= 8	 // ARMv8 and higher
 
 inline static void atomic_exclusive_load_aquire(volatile uint32_t& atomic, uint32_t& target)
 {
-	asm volatile
+	asm volatile  // clang-format off
 	(
 		"ldaex %0, [%1]"
 		: "=r" (target)
 		: "r" (&atomic)
 		:
-	);
+	);	// clang-format on
 }
 
 inline static bool atomic_exclusive_store_release(volatile uint32_t& atomic, const uint32_t& store)
 {
 	bool failed;
-	asm volatile
+	asm volatile  // clang-format off
 	(
 		"stlex %0, %1, [%2]"
 		: "=r" (failed)
 		: "r" (store)
 		, "r" (&atomic)
 		:
-	);
+	);	// clang-format on
 	return !failed;
 }
 
-#elif __ARM_ARCH >= 7	// ARMv7
+#elif __ARM_ARCH >= 7  // ARMv7
 
 inline static void atomic_exclusive_load_aquire(volatile uint32_t& atomic, uint32_t& target)
 {
-	asm volatile
+	asm volatile  // clang-format off
 	(
 		"ldrex %0, [%1]\n\t"
 		"dmb"					// full memory fence
 		: "=r" (target)
 		: "r" (&atomic)
 		:
-	);
+	);	// clang-format on
 }
 
 inline static bool atomic_exclusive_store_release(volatile uint32_t& atomic, const uint32_t& store)
 {
 	bool failed;
-	asm volatile
+	asm volatile  // clang-format off
 	(
 		"dmb\n\t"				// full memory fence
 		"strex %0, %1, [%2]"
@@ -174,11 +174,11 @@ inline static bool atomic_exclusive_store_release(volatile uint32_t& atomic, con
 		: "r" (store)
 		, "r" (&atomic)
 		:
-	);
+	);	// clang-format on
 	return !failed;
 }
 
-#else	// ARMv6K
+#else  // ARMv6K
 
 #error "memory barrier code still missing for ARMv6K"
 
@@ -186,7 +186,7 @@ inline static bool atomic_exclusive_store_release(volatile uint32_t& atomic, con
 
 #endif	// __arm__
 
-}		// namespace ConcurrentFW
+}  // namespace ConcurrentFW
 
 #endif	// __arm__ || defined __aarch64__
 

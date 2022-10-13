@@ -6,7 +6,6 @@
  * This file is distributed under the ISC license, see file LICENSE.
  */
 
-
 #ifndef CONCURRENTFW_ATOMIC_ASM_DWCAS_LLSC_H_
 #define CONCURRENTFW_ATOMIC_ASM_DWCAS_LLSC_H_
 
@@ -28,19 +27,19 @@
 
 namespace ConcurrentFW
 {
-	enum class PlatformABASolution : bool
-	{
-		DWCAS=false,
-		LLSC=true
-	};
+enum class PlatformABASolution : bool
+{
+	DWCAS = false,
+	LLSC = true
+};
 
 #if defined(ATOMIC_DWCAS_NEEDED)
-	constexpr static ConcurrentFW::PlatformABASolution PLATFORM_ABA_SOLUTION { ConcurrentFW::PlatformABASolution::DWCAS };
+constexpr static ConcurrentFW::PlatformABASolution PLATFORM_ABA_SOLUTION {ConcurrentFW::PlatformABASolution::DWCAS};
 #elif defined(ATOMIC_LLSC_NEEDED)
-	constexpr static ConcurrentFW::PlatformABASolution PLATFORM_ABA_SOLUTION { ConcurrentFW::PlatformABASolution::LLSC };
+constexpr static ConcurrentFW::PlatformABASolution PLATFORM_ABA_SOLUTION {ConcurrentFW::PlatformABASolution::LLSC};
 #else
 #error "unsupported platform: neither DWCAS nor LLSC supported"
 #endif
-}
+}  // namespace ConcurrentFW
 
 #endif	// CONCURRENTFW_ATOMIC_ASM_DWCAS_LLSC_H_
