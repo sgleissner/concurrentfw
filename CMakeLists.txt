@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.21)
 
 # TODO: strip objects
 # TODO: test application linking to static libaray
-# TODO: make test application and cpptest optional
+# TODO: make test application optional
 # TODO: more robust install
 
 project(concurrentfw
@@ -15,7 +15,6 @@ project(concurrentfw
 include(GNUInstallDirs)
 
 set(CMAKE_CXX_STANDARD 20)
-# set(CMAKE_CXX_CPPCHECK "cppcheck")
 
 #execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpmachine
 #    OUTPUT_VARIABLE DUMPMACHINE)
@@ -108,21 +107,3 @@ install(TARGETS concurrentfw concurrentfw-static concurrentfw-test
 install(FILES ${CMAKE_BINARY_DIR}/libconcurrentfw.pc
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
 )
-
-## cppcheck target (static code analysis)
-#CPPCHECK=cppcheck
-#
-## --enable=warning,performance,portability,information
-#
-#cppcheck:
-#        $(CPPCHECK) --check-config --language=c++ --std=c++20 --platform=unix64 \
-#                -D__x86_64__ -D__LP64__ -U__ILP32__ \
-#                --inline-suppr \
-#                --enable=warning,performance,portability \
-#                --force -q \
-#                -I $(top_srcdir)/src \
-#                -I /usr/include \
-#                -I /usr/include/c++/10 \
-#                -I /usr/include/linux \
-#                $(patsubst %,$(top_srcdir)/%,$(libconcurrentfw_la_SOURCES)) \
-#                tee $(top_builddir)/cppcheck.result
