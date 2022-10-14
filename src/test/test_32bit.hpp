@@ -6,12 +6,13 @@
  * This file is distributed under the ISC license, see file LICENSE.
  */
 
-#ifndef TEST_32BIT_H_
-#define TEST_32BIT_H_
+#pragma once
+#ifndef TEST_32BIT_HPP_
+#define TEST_32BIT_HPP_
 
 #include <cstdint>
 
-#include <concurrentfw/aba_wrapper.h>
+#include <concurrentfw/aba_wrapper.hpp>
 
 class Test32Bit
 {
@@ -46,4 +47,4 @@ void Test32Bit::set(int32_t const value)
 	test.modify(inlined_modify_func, value);
 }
 
-#endif /* TEST_32BIT_H_ */
+#endif /* TEST_32BIT_HPP_ */

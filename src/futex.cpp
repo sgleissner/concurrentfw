@@ -23,7 +23,7 @@
 
 #include <errno.h>
 
-#include <concurrentfw/futex.h>
+#include <concurrentfw/futex.hpp>
 
 
 namespace ConcurrentFW

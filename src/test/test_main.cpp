@@ -9,7 +9,7 @@
 #include <iostream>
 #include <cstdint>
 
-#include <concurrentfw/version.h>
+#include <concurrentfw/version.hpp>
 
 void test_aba();
 void test_benchmark_futex();

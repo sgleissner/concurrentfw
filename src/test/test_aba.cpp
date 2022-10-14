@@ -9,8 +9,8 @@
 #include <iostream>
 #include <cstdint>
 
-#include <concurrentfw/concurrent_ptr.h>
-#include "test_32bit.h"
+#include <concurrentfw/concurrent_ptr.hpp>
+#include "test_32bit.hpp"
 
 
 void test_aba()

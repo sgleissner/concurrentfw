@@ -8,15 +8,16 @@
 
 // for a description of the ABA problem, please see: https://en.wikipedia.org/wiki/ABA_problem
 
-#ifndef CONCURRENTFW_ABA_WRAPPER_H_
-#define CONCURRENTFW_ABA_WRAPPER_H_
+#pragma once
+#ifndef CONCURRENTFW_ABA_WRAPPER_HPP_
+#define CONCURRENTFW_ABA_WRAPPER_HPP_
 
 #include <cstdint>
 #include <type_traits>
 #include <cstddef>
 
-#include <concurrentfw/atomic_asm_dwcas_llsc.h>
-#include <concurrentfw/helper.h>
+#include <concurrentfw/atomic_asm_dwcas_llsc.hpp>
+#include <concurrentfw/helper.hpp>
 
 
 namespace ConcurrentFW
@@ -162,4 +163,4 @@ public:
 
 }  // namespace ConcurrentFW
 
-#endif /* CONCURRENTFW_ABA_WRAPPER_H_ */
+#endif /* CONCURRENTFW_ABA_WRAPPER_HPP_ */

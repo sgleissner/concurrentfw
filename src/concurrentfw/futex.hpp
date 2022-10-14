@@ -16,17 +16,17 @@
  * no interprocess futexes (and so no priority-inheritance futexes).
  */
 
-
-#ifndef CONCURRENTFW_FUTEX_H_
-#define CONCURRENTFW_FUTEX_H_
+#pragma once
+#ifndef CONCURRENTFW_FUTEX_HPP_
+#define CONCURRENTFW_FUTEX_HPP_
 
 #include <unistd.h>		  // syscall()
 #include <sys/syscall.h>  // SYS_futex
 #include <linux/futex.h>  // constants for futex syscall
 #include <cstdint>
 
-#include <concurrentfw/helper.h>
-#include <concurrentfw/atomic.h>
+#include <concurrentfw/helper.hpp>
+#include <concurrentfw/atomic.hpp>
 
 
 namespace ConcurrentFW
@@ -229,4 +229,4 @@ protected:
 }  // namespace ConcurrentFW
 
 
-#endif	// CONCURRENTFW_FUTEX_H_
+#endif	// CONCURRENTFW_FUTEX_HPP_

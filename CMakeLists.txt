@@ -41,17 +41,17 @@ add_compile_options(
 )
 
 set(public_headers
-    src/concurrentfw/atomic_asm_dwcas_llsc.h
-    src/concurrentfw/atomic_asm_x86.h
-    src/concurrentfw/atomic_asm_arm.h
-    src/concurrentfw/aba_wrapper.h
-    src/concurrentfw/concurrent_ptr.h
-    src/concurrentfw/atomic.h
-    src/concurrentfw/version.h
-    src/concurrentfw/helper.h
-    src/concurrentfw/futex.h
-    ${CMAKE_CURRENT_BINARY_DIR}/concurrentfw/generated_config.h
-)
+        src/concurrentfw/atomic_asm_dwcas_llsc.hpp
+        src/concurrentfw/atomic_asm_x86.hpp
+        src/concurrentfw/atomic_asm_arm.hpp
+        src/concurrentfw/aba_wrapper.hpp
+        src/concurrentfw/concurrent_ptr.hpp
+        src/concurrentfw/atomic.hpp
+        src/concurrentfw/version.hpp
+        src/concurrentfw/helper.hpp
+        src/concurrentfw/futex.hpp
+        ${CMAKE_CURRENT_BINARY_DIR}/concurrentfw/generated_config.hpp
+        )
 
 set(library_sources
         src/futex.cpp
@@ -78,7 +78,7 @@ add_executable(concurrentfw-test
 add_dependencies(concurrentfw-static concurrentfw-test)
 
 configure_file(libconcurrentfw.pc.in libconcurrentfw.pc @ONLY)
-configure_file(config.h.in concurrentfw/generated_config.h @ONLY)
+configure_file(config.hpp.in concurrentfw/generated_config.hpp @ONLY)
 
 set_target_properties(concurrentfw PROPERTIES
         VERSION ${PROJECT_VERSION}

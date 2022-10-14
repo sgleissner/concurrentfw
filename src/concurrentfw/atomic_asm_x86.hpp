@@ -6,8 +6,9 @@
  * This file is distributed under the ISC license, see file LICENSE.
  */
 
-#ifndef CONCURRENTFW_ATOMIC_ASM_X86_H_
-#define CONCURRENTFW_ATOMIC_ASM_X86_H_
+#pragma once
+#ifndef CONCURRENTFW_ATOMIC_ASM_X86_HPP_
+#define CONCURRENTFW_ATOMIC_ASM_X86_HPP_
 
 #if defined __x86_64__ || defined __i686__
 
@@ -159,4 +160,4 @@ inline static bool atomic_dw_cas(volatile uint32_t atomic[2], uint32_t expected[
 
 #endif	// __x86_64__ || __i686__
 
-#endif	// CONCURRENTFW_ATOMIC_ASM_X86_H_
+#endif	// CONCURRENTFW_ATOMIC_ASM_X86_HPP_

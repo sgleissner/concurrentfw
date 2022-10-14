@@ -6,8 +6,9 @@
  * This file is distributed under the ISC license, see file LICENSE.
  */
 
-#ifndef CONCURRENTFW_ATOMIC_ASM_DWCAS_LLSC_H_
-#define CONCURRENTFW_ATOMIC_ASM_DWCAS_LLSC_H_
+#pragma once
+#ifndef CONCURRENTFW_ATOMIC_ASM_DWCAS_LLSC_HPP_
+#define CONCURRENTFW_ATOMIC_ASM_DWCAS_LLSC_HPP_
 
 // the included files either define / provide
 // ATOMIC_DWCAS_NEEDED and atomic double-word load / store / compare and swap
@@ -16,7 +17,7 @@
 // inlined assembler code
 
 #if defined __x86_64__ || defined __i686__
-#include <concurrentfw/atomic_asm_x86.h>
+#include <concurrentfw/atomic_asm_x86.hpp>
 #elif defined __arm__ || defined __aarch64__
 #include <concurrentfw/atomic_asm_arm.h>
 #else
@@ -42,4 +43,4 @@ constexpr static ConcurrentFW::PlatformABASolution PLATFORM_ABA_SOLUTION {Concur
 #endif
 }  // namespace ConcurrentFW
 
-#endif	// CONCURRENTFW_ATOMIC_ASM_DWCAS_LLSC_H_
+#endif	// CONCURRENTFW_ATOMIC_ASM_DWCAS_LLSC_HPP_

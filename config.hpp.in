@@ -1,5 +1,5 @@
 /*
- * concurrentfw/config.h
+ * concurrentfw/config.hpp
  *
  * (C) 2017-2022 by Simon Gleissner <simon@gleissner.de>, http://concurrentfw.de
  *
@@ -8,6 +8,7 @@
  * This is a generated file, do not edit!
  */
 
+#pragma once
 #ifndef CONCURRENTFW_CONFIG_H
 #define CONCURRENTFW_CONFIG_H
 

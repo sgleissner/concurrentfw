@@ -16,8 +16,8 @@
 #include <tuple>
 #include <functional>
 
-#include <concurrentfw/futex.h>
-#include <concurrentfw/atomic.h>
+#include <concurrentfw/futex.hpp>
+#include <concurrentfw/atomic.hpp>
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////
