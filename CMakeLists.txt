@@ -16,6 +16,23 @@ include(GNUInstallDirs)
 
 find_package(Catch2 3 REQUIRED)
 
+option(COMPILE_COVERAGE "configure gcc for compiling with coverage code" OFF)
+option(COMPILE_32BIT "configure 64 bit gcc for compiling 32 bit applications" OFF)
+
+execute_process(
+        COMMAND git rev-parse --short HEAD
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        RESULT_VARIABLE SHORT_GIT_HASH_RESULT
+        OUTPUT_VARIABLE SHORT_GIT_HASH_OUTPUT
+        ERROR_QUIET
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+if (SHORT_GIT_HASH_RESULT EQUAL 0)
+    set(SHORT_GIT_HASH "${SHORT_GIT_HASH_OUTPUT}")
+    set(VERSION_ADDENDUM "-git_${SHORT_GIT_HASH_OUTPUT}")
+endif ()
+
 set(CMAKE_CXX_STANDARD 20)
 
 #execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpmachine
@@ -41,6 +58,16 @@ add_compile_options(
         -Wno-terminate
 )
 
+if (COMPILE_COVERAGE)
+    add_compile_options(-g -O0 --coverage -fprofile-abs-path)
+    add_link_options(--coverage)
+endif ()
+
+if (COMPILE_32BIT)
+    add_compile_options(-m32)
+    add_link_options(-m32)
+endif ()
+
 set(public_headers
         src/concurrentfw/atomic_asm_dwcas_llsc.hpp
         src/concurrentfw/atomic_asm_x86.hpp
@@ -59,10 +86,10 @@ set(library_sources
 )
 
 set(test_sources
-        src/test/test_version.cpp
-        src/test/test_platform.cpp
-        src/test/test_aba_wrapper.cpp
-        src/test/test_concurrent_ptr.cpp
+        src/tests/test_version.cpp
+        src/tests/test_platform.cpp
+        src/tests/test_aba_wrapper.cpp
+        src/tests/test_concurrent_ptr.cpp
         # src/test/test_benchmark_futex.cpp
         )
 
@@ -82,6 +109,7 @@ add_dependencies(concurrentfw-static concurrentfw-tests)
 
 configure_file(libconcurrentfw.pc.in libconcurrentfw.pc @ONLY)
 configure_file(config.hpp.in concurrentfw/generated_config.hpp @ONLY)
+configure_file(sonar-project.properties.in ${CMAKE_SOURCE_DIR}/sonar-project.properties @ONLY)
 
 set_target_properties(concurrentfw PROPERTIES
         VERSION ${PROJECT_VERSION}
