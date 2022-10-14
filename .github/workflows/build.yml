@@ -18,6 +18,24 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Install Catch2
+        run: |
+          cd $HOME
+          git clone https://github.com/catchorg/Catch2.git
+          cd $HOME/Catch2/
+          cmake -Bbuild -H. -DBUILD_TESTING=OFF
+          sudo cmake --build build/ --target install
+      - name: Build & run unit tests
+        run: |
+          mkdir -p $HOME/unittests/64
+          mkdir -p $HOME/unittests/32
+          mkdir -p $HOME/unittests/reports
+          cmake -S . -B $HOME/unittests/64
+          cmake --build $HOME/unittests/64/ --config Release --parallel
+          pushd $HOME/unittests/64
+          ./concurrentfw-tests --reporter console::out=-::colour-mode=ansi --reporter SonarQube::out=$HOME/unittests/reports/report-x86_64.xml
+          popd
+          ls -al $HOME/unittests/reports
       - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
@@ -43,7 +61,7 @@ jobs:
           curl -sSLo $HOME/.sonar/build-wrapper-linux-x86.zip ${{ env.BUILD_WRAPPER_DOWNLOAD_URL }}
           unzip -o $HOME/.sonar/build-wrapper-linux-x86.zip -d $HOME/.sonar/
           echo "$HOME/.sonar/build-wrapper-linux-x86" >> $GITHUB_PATH
-      - name: Run build-wrapper
+      - name: Run Sonar build-wrapper
         run: |
           mkdir build
           cmake -S . -B build

@@ -54,6 +54,8 @@ union alignas(ABA_ATOMIC_ALIGNMENT<T>) ABA_Wrapper
 public:
 	using Counter = Atomic_ABA_BaseType<T>;
 
+	static constexpr size_t alignment {ABA_ATOMIC_ALIGNMENT<T>};
+
 private:
 	Atomic_ABA_BaseType<T> atomic[ABA_ARRAY_SIZE];
 	T data;

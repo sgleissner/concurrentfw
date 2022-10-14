@@ -32,6 +32,8 @@ public:
 	typename ABA_Wrapper<T*>::Counter get_counter();
 
 	ABA_Wrapper<T*> aba_ptr;
+
+	static constexpr size_t alignment {decltype(aba_ptr)::alignment};
 };
 
 template<typename T>

@@ -14,6 +14,8 @@ project(concurrentfw
 
 include(GNUInstallDirs)
 
+find_package(Catch2 3 REQUIRED)
+
 set(CMAKE_CXX_STANDARD 20)
 
 #execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpmachine
@@ -57,10 +59,12 @@ set(library_sources
 )
 
 set(test_sources
-        src/test/test_main.cpp
-        src/test/test_benchmark_futex.cpp
-        src/test/test_aba.cpp
-)
+        src/test/test_version.cpp
+        src/test/test_platform.cpp
+        src/test/test_aba_wrapper.cpp
+        src/test/test_concurrent_ptr.cpp
+        # src/test/test_benchmark_futex.cpp
+        )
 
 add_library(concurrentfw SHARED
         ${library_sources}
@@ -70,11 +74,11 @@ add_library(concurrentfw-static STATIC
         ${library_sources}
 )
 
-add_executable(concurrentfw-test
+add_executable(concurrentfw-tests
         ${test_sources}
 )
 
-add_dependencies(concurrentfw-static concurrentfw-test)
+add_dependencies(concurrentfw-static concurrentfw-tests)
 
 configure_file(libconcurrentfw.pc.in libconcurrentfw.pc @ONLY)
 configure_file(config.hpp.in concurrentfw/generated_config.hpp @ONLY)
@@ -83,27 +87,36 @@ set_target_properties(concurrentfw PROPERTIES
         VERSION ${PROJECT_VERSION}
         SOVERSION ${PROJECT_VERSION_MAJOR}
         PUBLIC_HEADER "${public_headers}"
-)
+        )
 
 target_include_directories(concurrentfw INTERFACE
         PRIVATE src
-)
+        )
 
 include_directories(src)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})    # for generated_config.h
 
-target_link_libraries(concurrentfw-test -lrt)
-target_link_libraries(concurrentfw-test -pthread)
-target_link_libraries(concurrentfw-test concurrentfw)
+target_link_libraries(concurrentfw-tests PRIVATE
+        Catch2::Catch2WithMain
+        concurrentfw
+        )
 
-install(TARGETS concurrentfw concurrentfw-static concurrentfw-test
+include(CTest)
+include(Catch)
+catch_discover_tests(concurrentfw-tests)
+
+#target_link_libraries(concurrentfw-tests -lrt)
+#target_link_libraries(concurrentfw-tests -pthread)
+#target_link_libraries(concurrentfw-tests concurrentfw)
+
+install(TARGETS concurrentfw concurrentfw-static
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/concurrentfw
-)
+        )
 
 # message(WARNING "${CMAKE_INSTALL_DATAROOTDIR}")
 
 install(FILES ${CMAKE_BINARY_DIR}/libconcurrentfw.pc
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
-)
+        )
