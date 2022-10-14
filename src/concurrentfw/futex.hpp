@@ -23,6 +23,7 @@
 #include <unistd.h>		  // syscall()
 #include <sys/syscall.h>  // SYS_futex
 #include <linux/futex.h>  // constants for futex syscall
+
 #include <cstdint>
 
 #include <concurrentfw/helper.hpp>
@@ -75,14 +76,14 @@ public:
 	FutexBase& operator=(FutexBase&&) = delete;
 
 protected:
-	static ALWAYS_INLINE int syscall_futex(
+	static ALWAYS_INLINE long syscall_futex(
 		volatile int* addr1, int op, int val1, const struct timespec* timeout, volatile int* addr2, int val3
 	) noexcept
 	{
 		return syscall(SYS_futex, addr1, op, val1, timeout, addr2, val3);
 	}
 
-	static ALWAYS_INLINE int syscall_futex(
+	static ALWAYS_INLINE long syscall_futex(
 		volatile int* addr1, int op, int val1, uint32_t val2, volatile int* addr2, int val3
 	) noexcept
 	{
@@ -91,19 +92,22 @@ protected:
 
 	ALWAYS_INLINE int futex_wait(int expected, const struct timespec* timeout_relative = nullptr) noexcept
 	{
-		return syscall_futex(&value.atomic, FUTEX_WAIT_PRIVATE, expected, timeout_relative, nullptr, 0);
+		return static_cast<int>(syscall_futex(&value.atomic, FUTEX_WAIT_PRIVATE, expected, timeout_relative, nullptr, 0)
+		);
 	}
 
 	ALWAYS_INLINE int futex_wake(int wakeups = 1) noexcept
 	{
-		return syscall_futex(&value.atomic, FUTEX_WAKE_PRIVATE, wakeups, nullptr, nullptr, 0);
+		return static_cast<int>(syscall_futex(&value.atomic, FUTEX_WAKE_PRIVATE, wakeups, nullptr, nullptr, 0));
 	}
 
 	// FUTEX_REQUEUE is "proved to be broken and unusable"
 
 	ALWAYS_INLINE int futex_cmp_requeue(int wakeups, uint32_t limit, volatile int* target, int expected) noexcept
 	{
-		return syscall_futex(&value.atomic, FUTEX_CMP_REQUEUE_PRIVATE, wakeups, limit, target, expected);
+		return static_cast<int>(
+			syscall_futex(&value.atomic, FUTEX_CMP_REQUEUE_PRIVATE, wakeups, limit, target, expected)
+		);
 	}
 
 	ALWAYS_INLINE int futex_wake_op(
@@ -118,24 +122,24 @@ protected:
 	) noexcept
 	{
 		const uint32_t val3 = (static_cast<uint32_t>(oparg_shift) << 31) | (static_cast<uint32_t>(op) << 28)
-							  | (static_cast<uint32_t>(cmp) << 24) | (static_cast<uint32_t>(oparg & 0xfff) << 12)
-							  | (static_cast<uint32_t>(cmparg & 0xfff));
-		return syscall_futex(
-			&value.atomic, FUTEX_WAKE_OP_PRIVATE, wakeups1, wakeups2, address2, static_cast<int>(val3)
+							  | (static_cast<uint32_t>(cmp) << 24) | (static_cast<uint32_t>(oparg & 0xFFF) << 12)
+							  | (static_cast<uint32_t>(cmparg & 0xFFF));
+		return static_cast<int>(
+			syscall_futex(&value.atomic, FUTEX_WAKE_OP_PRIVATE, wakeups1, wakeups2, address2, static_cast<int>(val3))
 		);
 	}
 
 	ALWAYS_INLINE int futex_wait_bitset(uint32_t mask, int expected, struct timespec* timeout_absolute) noexcept
 	{
-		return syscall_futex(
+		return static_cast<int>(syscall_futex(
 			&value.atomic, FUTEX_WAIT_BITSET_PRIVATE, expected, timeout_absolute, nullptr, static_cast<int>(mask)
-		);
+		));
 	}
 
 	ALWAYS_INLINE int futex_wake_bitset(uint32_t mask, int wakeups = 1) noexcept
 	{
-		return syscall_futex(
-			&value.atomic, FUTEX_WAKE_BITSET_PRIVATE, wakeups, nullptr, nullptr, static_cast<int>(mask)
+		return static_cast<int>(
+			syscall_futex(&value.atomic, FUTEX_WAKE_BITSET_PRIVATE, wakeups, nullptr, nullptr, static_cast<int>(mask))
 		);
 	}
 
