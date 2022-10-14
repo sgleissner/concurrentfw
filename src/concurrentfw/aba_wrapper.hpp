@@ -111,10 +111,8 @@ public:
 	// https://stackoverflow.com/questions/7281699/aligning-to-cache-line-and-knowing-the-cache-line-size
 
 	template<typename... ARGS>
-	inline bool modify
-		[[gnu::always_inline,
-		  gnu::optimize(GNU_OPTIMIZE_ATOMIC_LOOPS_ALIGNMENT
-		  )]] (bool (*modifier_func)(const T&, T&, ARGS...), ARGS... args)
+	inline bool modify [[gnu::always_inline, gnu::optimize(GNU_OPTIMIZE_ATOMIC_LOOPS_ALIGNMENT)]]  // highly optimized
+	(bool (*modifier_func)(const T&, T&, ARGS...), ARGS... args)
 	{
 		bool success;
 		bool stored;
