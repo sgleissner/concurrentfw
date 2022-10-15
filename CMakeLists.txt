@@ -74,6 +74,7 @@ set(public_headers
         src/concurrentfw/atomic_asm_arm.hpp
         src/concurrentfw/aba_wrapper.hpp
         src/concurrentfw/concurrent_ptr.hpp
+        src/concurrentfw/stack.hpp
         src/concurrentfw/atomic.hpp
         src/concurrentfw/version.hpp
         src/concurrentfw/helper.hpp
