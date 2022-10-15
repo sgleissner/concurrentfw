@@ -6,13 +6,13 @@
  * This file is distributed under the ISC license, see file LICENSE.
  */
 
-
-#ifndef CONCURRENTFW_CONCURRENT_PTR_H_
-#define CONCURRENTFW_CONCURRENT_PTR_H_
+#pragma once
+#ifndef CONCURRENTFW_CONCURRENT_PTR_HPP_
+#define CONCURRENTFW_CONCURRENT_PTR_HPP_
 
 #include <cstdint>
 
-#include <concurrentfw/aba_wrapper.h>
+#include <concurrentfw/aba_wrapper.hpp>
 
 namespace ConcurrentFW
 {
@@ -32,6 +32,8 @@ public:
 	typename ABA_Wrapper<T*>::Counter get_counter();
 
 	ABA_Wrapper<T*> aba_ptr;
+
+	static constexpr size_t alignment {decltype(aba_ptr)::alignment};
 };
 
 template<typename T>
@@ -79,4 +81,4 @@ typename ABA_Wrapper<T*>::Counter Concurrent_Ptr<T>::get_counter()
 
 }  // namespace ConcurrentFW
 
-#endif /* CONCURRENTFW_CONCURRENT_PTR_H_ */
+#endif /* CONCURRENTFW_CONCURRENT_PTR_HPP_ */

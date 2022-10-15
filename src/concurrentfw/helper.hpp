@@ -6,9 +6,9 @@
  * This file is distributed under the ISC license, see file LICENSE.
  */
 
-
-#ifndef CONCURRENTFW_HELPER_H_
-#define CONCURRENTFW_HELPER_H_
+#pragma once
+#ifndef CONCURRENTFW_HELPER_HPP_
+#define CONCURRENTFW_HELPER_HPP_
 
 // branch hint macros
 // see: https://stackoverflow.com/questions/30130930/is-there-a-compiler-hint-for-gcc-to-force-branch-prediction-to-always-go-a-certa
@@ -47,4 +47,4 @@ constexpr PlatformWidth PLATFORM_WIDTH {PlatformWidth::WIDTH_32};
 
 }  // namespace ConcurrentFW
 
-#endif /* CONCURRENTFW_HELPER_H_ */
+#endif /* CONCURRENTFW_HELPER_HPP_ */

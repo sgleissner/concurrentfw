@@ -13,13 +13,13 @@
 // and template-coded memory order (which is always constant and will be verified)
 // see: https://gcc.gnu.org/onlinedocs/gcc/_005f_005fatomic-Builtins.html
 
-
-#ifndef CONCURRENTFW_ATOMIC_H_
-#define CONCURRENTFW_ATOMIC_H_
+#pragma once
+#ifndef CONCURRENTFW_ATOMIC_HPP_
+#define CONCURRENTFW_ATOMIC_HPP_
 
 #include <type_traits>
 
-#include <concurrentfw/helper.h>
+#include <concurrentfw/helper.hpp>
 
 namespace ConcurrentFW
 {
@@ -325,4 +325,4 @@ static ALWAYS_INLINE void atomic_signal_fence() noexcept
 
 }  // namespace ConcurrentFW
 
-#endif	// CONCURRENTFW_ATOMIC_H_
+#endif	// CONCURRENTFW_ATOMIC_HPP_

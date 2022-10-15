@@ -8,15 +8,16 @@
 
 // for a description of the ABA problem, please see: https://en.wikipedia.org/wiki/ABA_problem
 
-#ifndef CONCURRENTFW_ABA_WRAPPER_H_
-#define CONCURRENTFW_ABA_WRAPPER_H_
+#pragma once
+#ifndef CONCURRENTFW_ABA_WRAPPER_HPP_
+#define CONCURRENTFW_ABA_WRAPPER_HPP_
 
 #include <cstdint>
 #include <type_traits>
 #include <cstddef>
 
-#include <concurrentfw/atomic_asm_dwcas_llsc.h>
-#include <concurrentfw/helper.h>
+#include <concurrentfw/atomic_asm_dwcas_llsc.hpp>
+#include <concurrentfw/helper.hpp>
 
 
 namespace ConcurrentFW
@@ -52,6 +53,8 @@ union alignas(ABA_ATOMIC_ALIGNMENT<T>) ABA_Wrapper
 
 public:
 	using Counter = Atomic_ABA_BaseType<T>;
+
+	static constexpr size_t alignment {ABA_ATOMIC_ALIGNMENT<T>};
 
 private:
 	Atomic_ABA_BaseType<T> atomic[ABA_ARRAY_SIZE];
@@ -110,10 +113,8 @@ public:
 	// https://stackoverflow.com/questions/7281699/aligning-to-cache-line-and-knowing-the-cache-line-size
 
 	template<typename... ARGS>
-	inline bool modify
-		[[gnu::always_inline,
-		  gnu::optimize(GNU_OPTIMIZE_ATOMIC_LOOPS_ALIGNMENT
-		  )]] (bool (*modifier_func)(const T&, T&, ARGS...), ARGS... args)
+	inline bool modify [[gnu::always_inline, gnu::optimize(GNU_OPTIMIZE_ATOMIC_LOOPS_ALIGNMENT)]]  // highly optimized
+	(bool (*modifier_func)(const T&, T&, ARGS...), ARGS... args)
 	{
 		bool success;
 		bool stored;
@@ -162,4 +163,4 @@ public:
 
 }  // namespace ConcurrentFW
 
-#endif /* CONCURRENTFW_ABA_WRAPPER_H_ */
+#endif /* CONCURRENTFW_ABA_WRAPPER_HPP_ */

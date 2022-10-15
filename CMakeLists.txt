@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.21)
 
 # TODO: strip objects
 # TODO: test application linking to static libaray
-# TODO: make test application and cpptest optional
+# TODO: make test application optional
 # TODO: more robust install
 
 project(concurrentfw
@@ -14,8 +14,26 @@ project(concurrentfw
 
 include(GNUInstallDirs)
 
+find_package(Catch2 3 REQUIRED)
+
+option(COMPILE_COVERAGE "configure gcc for compiling with coverage code" OFF)
+option(COMPILE_32BIT "configure 64 bit gcc for compiling 32 bit applications" OFF)
+
+execute_process(
+        COMMAND git rev-parse --short HEAD
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        RESULT_VARIABLE SHORT_GIT_HASH_RESULT
+        OUTPUT_VARIABLE SHORT_GIT_HASH_OUTPUT
+        ERROR_QUIET
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+if (SHORT_GIT_HASH_RESULT EQUAL 0)
+    set(SHORT_GIT_HASH "${SHORT_GIT_HASH_OUTPUT}")
+    set(VERSION_ADDENDUM "-git_${SHORT_GIT_HASH_OUTPUT}")
+endif ()
+
 set(CMAKE_CXX_STANDARD 20)
-# set(CMAKE_CXX_CPPCHECK "cppcheck")
 
 #execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpmachine
 #    OUTPUT_VARIABLE DUMPMACHINE)
@@ -40,28 +58,41 @@ add_compile_options(
         -Wno-terminate
 )
 
+if (COMPILE_COVERAGE)
+    add_compile_options(-g -O0 --coverage -fprofile-abs-path)
+    add_link_options(--coverage)
+endif ()
+
+if (COMPILE_32BIT)
+    add_compile_options(-m32)
+    add_link_options(-m32)
+endif ()
+
 set(public_headers
-    src/concurrentfw/atomic_asm_dwcas_llsc.h
-    src/concurrentfw/atomic_asm_x86.h
-    src/concurrentfw/atomic_asm_arm.h
-    src/concurrentfw/aba_wrapper.h
-    src/concurrentfw/concurrent_ptr.h
-    src/concurrentfw/atomic.h
-    src/concurrentfw/version.h
-    src/concurrentfw/helper.h
-    src/concurrentfw/futex.h
-    ${CMAKE_CURRENT_BINARY_DIR}/concurrentfw/generated_config.h
-)
+        src/concurrentfw/atomic_asm_dwcas_llsc.hpp
+        src/concurrentfw/atomic_asm_x86.hpp
+        src/concurrentfw/atomic_asm_arm.hpp
+        src/concurrentfw/aba_wrapper.hpp
+        src/concurrentfw/concurrent_ptr.hpp
+        src/concurrentfw/stack.hpp
+        src/concurrentfw/atomic.hpp
+        src/concurrentfw/version.hpp
+        src/concurrentfw/helper.hpp
+        src/concurrentfw/futex.hpp
+        ${CMAKE_CURRENT_BINARY_DIR}/concurrentfw/generated_config.hpp
+        )
 
 set(library_sources
         src/futex.cpp
 )
 
 set(test_sources
-        src/test/test_main.cpp
-        src/test/test_benchmark_futex.cpp
-        src/test/test_aba.cpp
-)
+        src/tests/test_version.cpp
+        src/tests/test_platform.cpp
+        src/tests/test_aba_wrapper.cpp
+        src/tests/test_concurrent_ptr.cpp
+        # src/test/test_benchmark_futex.cpp
+        )
 
 add_library(concurrentfw SHARED
         ${library_sources}
@@ -71,58 +102,50 @@ add_library(concurrentfw-static STATIC
         ${library_sources}
 )
 
-add_executable(concurrentfw-test
+add_executable(concurrentfw-tests
         ${test_sources}
 )
 
-add_dependencies(concurrentfw-static concurrentfw-test)
+add_dependencies(concurrentfw-static concurrentfw-tests)
 
 configure_file(libconcurrentfw.pc.in libconcurrentfw.pc @ONLY)
-configure_file(config.h.in concurrentfw/generated_config.h @ONLY)
+configure_file(config.hpp.in concurrentfw/generated_config.hpp @ONLY)
+configure_file(sonar-project.properties.in ${CMAKE_SOURCE_DIR}/sonar-project.properties @ONLY)
 
 set_target_properties(concurrentfw PROPERTIES
         VERSION ${PROJECT_VERSION}
         SOVERSION ${PROJECT_VERSION_MAJOR}
         PUBLIC_HEADER "${public_headers}"
-)
+        )
 
 target_include_directories(concurrentfw INTERFACE
         PRIVATE src
-)
+        )
 
 include_directories(src)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})    # for generated_config.h
 
-target_link_libraries(concurrentfw-test -lrt)
-target_link_libraries(concurrentfw-test -pthread)
-target_link_libraries(concurrentfw-test concurrentfw)
+target_link_libraries(concurrentfw-tests PRIVATE
+        Catch2::Catch2WithMain
+        concurrentfw
+        )
 
-install(TARGETS concurrentfw concurrentfw-static concurrentfw-test
+include(CTest)
+include(Catch)
+catch_discover_tests(concurrentfw-tests)
+
+#target_link_libraries(concurrentfw-tests -lrt)
+#target_link_libraries(concurrentfw-tests -pthread)
+#target_link_libraries(concurrentfw-tests concurrentfw)
+
+install(TARGETS concurrentfw concurrentfw-static
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/concurrentfw
-)
+        )
 
 # message(WARNING "${CMAKE_INSTALL_DATAROOTDIR}")
 
 install(FILES ${CMAKE_BINARY_DIR}/libconcurrentfw.pc
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
-)
-
-## cppcheck target (static code analysis)
-#CPPCHECK=cppcheck
-#
-## --enable=warning,performance,portability,information
-#
-#cppcheck:
-#        $(CPPCHECK) --check-config --language=c++ --std=c++20 --platform=unix64 \
-#                -D__x86_64__ -D__LP64__ -U__ILP32__ \
-#                --inline-suppr \
-#                --enable=warning,performance,portability \
-#                --force -q \
-#                -I $(top_srcdir)/src \
-#                -I /usr/include \
-#                -I /usr/include/c++/10 \
-#                -I /usr/include/linux \
-#                $(patsubst %,$(top_srcdir)/%,$(libconcurrentfw_la_SOURCES)) \
-#                tee $(top_builddir)/cppcheck.result
+        )

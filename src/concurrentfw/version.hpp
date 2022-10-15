@@ -1,17 +1,18 @@
 /*
- * concurrentfw/version.h
+ * concurrentfw/version.hpp
  *
  * (C) 2017-2022 by Simon Gleissner <simon@gleissner.de>, http://concurrentfw.de
  *
  * This file is distributed under the ISC license, see file LICENSE.
  */
 
-#ifndef CONCURRENTFW_VERSION_H_
-#define CONCURRENTFW_VERSION_H_
+#pragma once
+#ifndef CONCURRENTFW_VERSION_HPP_
+#define CONCURRENTFW_VERSION_HPP_
 
 #include <cstdint>
 
-#include <concurrentfw/generated_config.h>	// gets generated constants from CMakeLists.txt
+#include <concurrentfw/generated_config.hpp>  // gets generated constants from CMakeLists.txt
 
 namespace ConcurrentFW
 {
@@ -26,4 +27,4 @@ struct Version
 
 }  // namespace ConcurrentFW
 
-#endif /* CONCURRENTFW_VERSION_H_ */
+#endif /* CONCURRENTFW_VERSION_HPP_ */

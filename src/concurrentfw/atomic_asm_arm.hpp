@@ -6,8 +6,9 @@
  * This file is distributed under the ISC license, see file LICENSE.
  */
 
-#ifndef CONCURRENTFW_ATOMIC_ASM_ARM_H_
-#define CONCURRENTFW_ATOMIC_ASM_ARM_H_
+#pragma once
+#ifndef CONCURRENTFW_ATOMIC_ASM_ARM_HPP_
+#define CONCURRENTFW_ATOMIC_ASM_ARM_HPP_
 
 #if defined __arm__ || defined __aarch64__
 
@@ -190,4 +191,4 @@ inline static bool atomic_exclusive_store_release(volatile uint32_t& atomic, con
 
 #endif	// __arm__ || defined __aarch64__
 
-#endif	// CONCURRENTFW_ATOMIC_ASM_ARM_H_
+#endif	// CONCURRENTFW_ATOMIC_ASM_ARM_HPP_
