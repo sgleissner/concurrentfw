@@ -24,7 +24,7 @@ class Stack
 
 		template<typename... ARGS>
 		Node(ARGS&&... args)
-		: object {std::forward(args...)}
+		: object {std::forward<ARGS>(args)...}
 		{}
 
 		Node* next {nullptr};
@@ -32,7 +32,7 @@ class Stack
 	};
 
 private:
-	ABA_Wrapper<Node*> aba_top_ptr;
+	ABA_Wrapper<Node*> aba_top_ptr {nullptr};
 
 public:
 	Stack() = default;
@@ -46,26 +46,21 @@ public:
 	void push(T object_init);
 
 	template<typename... ARGS>
-	void enplace(ARGS&&... args);
+	void emplace(ARGS&&... args);
 
 	bool pop(T& object_top);
 
-	template<typename RET>
-	void bulk_pop_visit(std::function<RET(T&)> visit);
-
-	template<typename RET>
-	void bulk_pop_reverse_visit(std::function<RET(T&)> visit);
+	void bulk_pop_visit(std::function<void(T&)> visit);
+	void bulk_pop_reverse_visit(std::function<void(T&)> visit);
 
 private:
 	void node_push(Node* node);
-	bool node_pop(Node*& node);
+	Node* node_pop();
 	Node* nodes_pop_all();
 
 	static void nodes_cleanup(Node* nodes);
 	static Node* nodes_reverse(Node* top);
-
-	template<typename RET>
-	static void nodes_visit_delete(Node* top, std::function<RET(T&)>& visit);
+	static void nodes_visit_delete(Node* top, std::function<void(T&)>& visit);
 };
 
 template<typename T>
@@ -84,38 +79,35 @@ void Stack<T>::push(T object_init)
 
 template<typename T>
 template<typename... ARGS>
-void Stack<T>::enplace(ARGS&&... args)
+void Stack<T>::emplace(ARGS&&... args)
 {
-	Node* const new_node = new Node(std::forward(args...));
+	Node* const new_node = new Node(std::forward<ARGS>(args)...);
 	node_push(new_node);
 }
 
 template<typename T>
 bool Stack<T>::pop(T& object_top)
 {
-	Node* top;	// will be initialized in lambda
-
-	bool success = node_pop(top);
-	if (success)
+	Node* top = node_pop();
+	bool valid = (top != nullptr);
+	if (valid)
 	{
 		object_top = top->object;
 		delete top;
 	}
 
-	return success;
+	return valid;
 }
 
 template<typename T>
-template<typename RET>
-void Stack<T>::bulk_pop_visit(std::function<RET(T&)> visit)
+void Stack<T>::bulk_pop_visit(std::function<void(T&)> visit)
 {
 	Node* top = nodes_pop_all();
 	nodes_visit_delete(top, visit);
 }
 
 template<typename T>
-template<typename RET>
-void Stack<T>::bulk_pop_reverse_visit(std::function<RET(T&)> visit)
+void Stack<T>::bulk_pop_reverse_visit(std::function<void(T&)> visit)
 {
 	Node* top = nodes_pop_all();
 	Node* reverse = nodes_reverse(top);
@@ -138,20 +130,25 @@ void Stack<T>::node_push(Node* node)
 }
 
 template<typename T>
-bool Stack<T>::node_pop(Node*& node)
+typename Stack<T>::Node* Stack<T>::node_pop()
 {
+	Node* top;	// will always be initialized in lambda
+
 	// GCC: lamdas in function pointers can be inlined completely, but must not have captures
-	bool (*inlined_modify_func)(Node* const&, Node*&, Node*&)  // implicit cast of lambda to function pointer
-		= [](Node* const& ptr_cached, Node*& ptr_modify, Node*& node) -> bool
+	// Info: top must be given as double-pointer, as references to pointers currently make problems
+	//       with the variadic template parameter pack deduction
+	bool (*inlined_modify_func)(Node* const&, Node*&, Node**)  // implicit cast of lambda to function pointer
+		= [](Node* const& ptr_cached, Node*& ptr_modify, Node** top) -> bool
 	{
-		node = ptr_cached;
-		if (!node)	// if stack is already empty, no exchange is necessary
+		*top = ptr_cached;
+		if (!*top)	// if stack is already empty, no exchange is necessary
 			return false;
-		ptr_modify = node->next;
+		ptr_modify = (*top)->next;
 		return true;
 	};
 
-	return aba_top_ptr.modify(inlined_modify_func, node);
+	aba_top_ptr.modify(inlined_modify_func, &top);
+	return top;
 }
 
 template<typename T>
@@ -160,17 +157,19 @@ typename Stack<T>::Node* Stack<T>::nodes_pop_all()
 	Node* top;	// will always be initialized in lambda
 
 	// GCC: lamdas in function pointers can be inlined completely, but must not have captures
-	bool (*inlined_modify_func)(Node* const&, Node*&, Node*&)  // implicit cast of lambda to function pointer
-		= [](Node* const& ptr_cached, Node*& ptr_modify, Node*& top) -> bool
+	// Info: top must be given as double-pointer, as references to pointers currently make problems
+	//       with the variadic template parameter pack deduction
+	bool (*inlined_modify_func)(Node* const&, Node*&, Node**)  // implicit cast of lambda to function pointer
+		= [](Node* const& ptr_cached, Node*& ptr_modify, Node** top) -> bool
 	{
-		top = ptr_cached;
-		if (!top)  // if stack is already empty, no exchange is necessary
+		*top = ptr_cached;
+		if (!*top)	// if stack is already empty, no exchange is necessary
 			return false;
 		ptr_modify = nullptr;
 		return true;
 	};
 
-	aba_top_ptr.modify(inlined_modify_func, top);
+	aba_top_ptr.modify(inlined_modify_func, &top);
 	return top;
 }
 
@@ -200,8 +199,7 @@ typename Stack<T>::Node* Stack<T>::nodes_reverse(Node* top)
 }
 
 template<typename T>
-template<typename RET>
-void Stack<T>::nodes_visit_delete(Node* top, std::function<RET(T&)>& visit)
+void Stack<T>::nodes_visit_delete(Node* top, std::function<void(T&)>& visit)
 {
 	while (top)
 	{

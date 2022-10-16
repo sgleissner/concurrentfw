@@ -18,6 +18,8 @@
 
 #include <cstdint>
 
+#include <concurrentfw/helper.hpp>
+
 #define ATOMIC_DWCAS_NEEDED
 
 // The atomic loops are unlikely repeated, therefore skip the alignment overhead before the loop
@@ -30,7 +32,7 @@ namespace ConcurrentFW
 
 #if defined(__x86_64__)
 
-inline static void atomic_dw_load(volatile uint64_t atomic[2], uint64_t target[2]) noexcept
+ALWAYS_INLINE static void atomic_dw_load(volatile uint64_t atomic[2], uint64_t target[2]) noexcept
 {
 	asm volatile  // clang-format off
 	(
@@ -40,11 +42,11 @@ inline static void atomic_dw_load(volatile uint64_t atomic[2], uint64_t target[2
 		:		"=&a"	(target[0])		// rax: output only, early clobber
 		,		"=&d"	(target[1])		// rdx: output only, early clobber
 		: [ptr]	"r"		(atomic)
-		:		"cc"					// flags modified. cmpxchg16b is a full memory barrier, therefore "memory" is not needed here
+		:		"cc"					// flags modified. memory is unchanged.
 	);	// clang-format on
 }
 
-inline static void atomic_dw_store(volatile uint64_t atomic[2], const uint64_t desired[2]) noexcept
+ALWAYS_INLINE static void atomic_dw_store(volatile uint64_t atomic[2], const uint64_t desired[2]) noexcept
 {
 	asm volatile  // clang-format off
 	(
@@ -56,11 +58,13 @@ inline static void atomic_dw_store(volatile uint64_t atomic[2], const uint64_t d
 		:		"b" (desired[0])
 		,		"c" (desired[1])
 		, [ptr]	"r" (atomic)
-		:		"cc", "rax", "rdx"			// flags & rax:rdx modified. cmpxchg16b is a full memory barrier, therefore "memory" is not needed here
+		:		"cc", "rax", "rdx", "memory"	// flags & rax:rdx modified, "memory" acts as compiler barrier
 	);	// clang-format on
 }
 
-inline static bool atomic_dw_cas(volatile uint64_t atomic[2], uint64_t expected[2], const uint64_t desired[2]) noexcept
+ALWAYS_INLINE static bool atomic_dw_cas(
+	volatile uint64_t atomic[2], uint64_t expected[2], const uint64_t desired[2]
+) noexcept
 {
 	bool exchanged;
 	asm volatile  // clang-format off
@@ -72,14 +76,14 @@ inline static bool atomic_dw_cas(volatile uint64_t atomic[2], uint64_t expected[
 		:		"b"		(desired[0])	// rbx: input only
 		,		"c"		(desired[1])	// rcx: input only
 		, [ptr]	"r"		(atomic)
-		:								// cmpxchg16b is a full memory barrier, therefore "memory" is not needed here
+		:		"memory"				// "memory" acts as compiler barrier
 	);	// clang-format on
 	return exchanged;
 }
 
 #endif
 
-inline static void atomic_dw_load(volatile uint32_t atomic[2], uint32_t destination[2]) noexcept
+ALWAYS_INLINE static void atomic_dw_load(volatile uint32_t atomic[2], uint32_t destination[2]) noexcept
 {
 #if defined(__x86_64__)
 	asm volatile  // clang-format off
@@ -89,7 +93,7 @@ inline static void atomic_dw_load(volatile uint32_t atomic[2], uint32_t destinat
 		:		"=a"	(destination[0])	// eax: output only
 		,		"=d"	(destination[1])	// edx: output only
 		: [ptr]	"r"		(atomic)
-		:		"cc"						// flags modified.
+		:		"cc"						// flags modified. memory is unchanged.
 	);	// clang-format on
 #elif defined(__i686__)
 	asm volatile  // clang-format off
@@ -100,12 +104,12 @@ inline static void atomic_dw_load(volatile uint32_t atomic[2], uint32_t destinat
 		:		"=&a"	(reinterpret_cast<uint32_t*>(destination)[0])	// eax: output only, early clobber
 		,		"=&d"	(reinterpret_cast<uint32_t*>(destination)[1])	// edx: output only, early clobber
 		: [ptr]	"r"		(atomic)
-		:		"cc"	// flags modified. cmpxchg8b is a full memory barrier, therefore "memory" is not needed here
+		:		"cc"				// flags modified. memory is unchanged.
 	);	// clang-format on
 #endif
 }
 
-inline static void atomic_dw_store(volatile uint32_t atomic[2], const uint32_t desired[2]) noexcept
+ALWAYS_INLINE static void atomic_dw_store(volatile uint32_t atomic[2], const uint32_t desired[2]) noexcept
 {
 #if defined(__x86_64__)
 	[[maybe_unused]] uint32_t unused1;	// will be discarded
@@ -120,7 +124,7 @@ inline static void atomic_dw_store(volatile uint32_t atomic[2], const uint32_t d
 		:		"b" (desired[0])
 		,		"c" (desired[1])
 		, [ptr]	"r" (atomic)
-		:		"cc"					// flags modified.
+		:		"cc", "memory"			// flags modified, "memory" acts as compiler barrier
 	);								// clang-format on
 #elif defined(__i686__)
 	//	https://stackoverflow.com/questions/48046591/how-do-i-atomically-move-a-64bit-value-in-x86-asm
@@ -134,12 +138,12 @@ inline static void atomic_dw_store(volatile uint32_t atomic[2], const uint32_t d
 		:		"b" (reinterpret_cast<const uint32_t*>(desired)[0])
 		,		"c" (reinterpret_cast<const uint32_t*>(desired)[1])
 		, [ptr]	"r" (atomic)
-		:		"cc", "eax", "edx"			// flags & rax:rdx modified. cmpxchg16b is a full memory barrier, therefore "memory" is not needed here
+		:		"cc", "eax", "edx", "memory"	// flags & rax:rdx modified, "memory" acts as compiler barrier
 	);	// clang-format on
 #endif
 }
 
-inline static bool atomic_dw_cas(volatile uint32_t atomic[2], uint32_t expected[2], const uint32_t desired[2])
+ALWAYS_INLINE static bool atomic_dw_cas(volatile uint32_t atomic[2], uint32_t expected[2], const uint32_t desired[2])
 {
 	bool exchanged;
 	asm volatile  // clang-format off
@@ -151,7 +155,7 @@ inline static bool atomic_dw_cas(volatile uint32_t atomic[2], uint32_t expected[
 		:		"b"		(desired[0])	// ebx: input only
 		,		"c"		(desired[1])	// ecx: input only
 		, [ptr]	"r"		(atomic)
-		:								// cmpxchg8b is a full memory barrier, therefore "memory" is not needed here
+		:		"memory"				// "memory" acts as compiler barrier
 	);	// clang-format on
 	return exchanged;
 }
