@@ -92,6 +92,7 @@ set(test_sources
         src/tests/test_aba_wrapper.cpp
         src/tests/test_concurrent_ptr.cpp
         # src/test/test_benchmark_futex.cpp
+        src/tests/test_stack.cpp
         )
 
 add_library(concurrentfw SHARED
