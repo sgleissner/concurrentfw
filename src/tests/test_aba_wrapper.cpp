@@ -46,7 +46,7 @@ TEST_CASE("check ABA wrapper", "[aba_wrapper]")
 {
 	Test32Bit test_int32(1234567890);  // 32 bit test
 	auto counter = test_int32.get_counter();
-	CHECK(test_int32.test.alignment == 2 * sizeof(int32_t));
+	CHECK(test_int32.test.alignment == (2 * sizeof(int32_t)));
 	test_int32.set(-2000000000);
 	CHECK(test_int32.get() == -2000000000);
 	test_int32.set(2000000000);

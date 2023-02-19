@@ -11,7 +11,7 @@
 #include <cstdint>
 #include <concurrentfw/concurrent_ptr.hpp>
 
-TEST_CASE("check Concurrent_Ptr<>", "[concurrent_ptr]")
+TEST_CASE("check Concurrent_Ptr", "[concurrent_ptr]")
 {
 	ConcurrentFW::Concurrent_Ptr<uint16_t> test_ptr;  // pointer test
 	auto counter = test_ptr.get_counter();

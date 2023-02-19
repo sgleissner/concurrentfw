@@ -1,20 +1,22 @@
-/*
- * concurrentfw/config.hpp
+/**
+ * Auto-generated version numbers.
  *
- * (C) 2017-2022 by Simon Gleissner <simon@gleissner.de>, http://concurrentfw.de
+ * @file_generated_warning@
  *
- * This file is distributed under the ISC license, see file LICENSE.
- *
- * This is a generated file, do not edit!
+ * @author    Simon Gleissner <simon@gleissner.de>, http://concurrentfw.de
+ * @copyright ISC license, see file LICENSE
+ * @file
  */
 
 #pragma once
 #ifndef CONCURRENTFW_CONFIG_H
 #define CONCURRENTFW_CONFIG_H
 
+// clang-format off
 #define CONCURRENTFW_VERSION_MAJOR @PROJECT_VERSION_MAJOR@
 #define CONCURRENTFW_VERSION_MINOR @PROJECT_VERSION_MINOR@
 #define CONCURRENTFW_VERSION_PATCH @PROJECT_VERSION_PATCH@
 #define CONCURRENTFW_VERSION_TWEAK @PROJECT_VERSION_TWEAK@
+// clang-format on
 
-#endif //CONCURRENTFW_CONFIG_H
+#endif	// CONCURRENTFW_CONFIG_H

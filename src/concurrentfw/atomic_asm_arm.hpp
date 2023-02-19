@@ -75,7 +75,7 @@ inline static void atomic_exclusive_load_aquire(volatile uint64_t& atomic, uint6
 		"ldaxr %0, [%1]"
 		: "=r" (target)
 		: "r" (&atomic)
-		:
+		: "memory"			// "memory" acts as compiler r/w barrier
 	);	// clang-format on
 }
 
@@ -86,7 +86,7 @@ inline static void atomic_exclusive_load_aquire(volatile uint32_t& atomic, uint3
 		"ldaxr %w0, [%1]"
 		: "=r" (target)
 		: "r" (&atomic)
-		:
+		: "memory"			// "memory" acts as compiler r/w barrier
 	);	// clang-format on
 }
 
@@ -100,9 +100,9 @@ inline static bool atomic_exclusive_store_release(volatile uint64_t& atomic, con
 	(
 		"stlxr %w0, %1, [%2]"
 		: "=r" (failed)
-		: "r" (store)
-		, "r" (&atomic)
-		:
+		: "r" (store),
+		  "r" (&atomic)
+		: "memory"			// "memory" acts as compiler r/w barrier
 	);	// clang-format on
 	return !failed;
 }
@@ -114,9 +114,9 @@ inline static bool atomic_exclusive_store_release(volatile uint32_t& atomic, con
 	(
 		"stlxr %w0, %w1, [%2]"
 		: "=r" (failed)
-		: "r" (store)
-		, "r" (&atomic)
-		:
+		: "r" (store),
+		  "r" (&atomic)
+		: "memory"			// "memory" acts as compiler r/w barrier
 	);	// clang-format on
 	return !failed;
 }
@@ -132,7 +132,7 @@ inline static void atomic_exclusive_load_aquire(volatile uint32_t& atomic, uint3
 		"ldaex %0, [%1]"
 		: "=r" (target)
 		: "r" (&atomic)
-		:
+		: "memory"			// "memory" acts as compiler r/w barrier
 	);	// clang-format on
 }
 
@@ -143,9 +143,9 @@ inline static bool atomic_exclusive_store_release(volatile uint32_t& atomic, con
 	(
 		"stlex %0, %1, [%2]"
 		: "=r" (failed)
-		: "r" (store)
-		, "r" (&atomic)
-		:
+		: "r" (store),
+		  "r" (&atomic)
+		: "memory"			// "memory" acts as compiler r/w barrier
 	);	// clang-format on
 	return !failed;
 }
@@ -160,7 +160,7 @@ inline static void atomic_exclusive_load_aquire(volatile uint32_t& atomic, uint3
 		"dmb"					// full memory fence
 		: "=r" (target)
 		: "r" (&atomic)
-		:
+		: "memory"			// "memory" acts as compiler r/w barrier
 	);	// clang-format on
 }
 
@@ -172,9 +172,9 @@ inline static bool atomic_exclusive_store_release(volatile uint32_t& atomic, con
 		"dmb\n\t"				// full memory fence
 		"strex %0, %1, [%2]"
 		: "=r" (failed)
-		: "r" (store)
-		, "r" (&atomic)
-		:
+		: "r" (store),
+		  "r" (&atomic)
+		: "memory"			// "memory" acts as compiler r/w barrier
 	);	// clang-format on
 	return !failed;
 }
