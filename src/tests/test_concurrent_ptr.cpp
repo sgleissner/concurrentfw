@@ -15,7 +15,7 @@ TEST_CASE("check Concurrent_Ptr", "[concurrent_ptr]")
 {
 	ConcurrentFW::Concurrent_Ptr<uint16_t> test_ptr;  // pointer test
 	auto counter = test_ptr.get_counter();
-	CHECK(test_ptr.alignment == 2 * sizeof(void*));
+	CHECK(test_ptr.alignment == (1 + ConcurrentFW::ABA_IS_PLATFORM_DWCAS) * sizeof(void*));
 	uint16_t x1 = 42;
 	uint16_t x2 = 4711;
 	uint16_t x3 = 0x0815;
@@ -25,5 +25,5 @@ TEST_CASE("check Concurrent_Ptr", "[concurrent_ptr]")
 	CHECK(*test_ptr.get() == 4711);
 	test_ptr.set(&x3);
 	CHECK(*test_ptr.get() == 0x0815);
-	CHECK(test_ptr.get_counter() - counter == 3);
+	CHECK(test_ptr.get_counter() - counter == (3 * ConcurrentFW::ABA_IS_PLATFORM_DWCAS));
 }

@@ -99,7 +99,7 @@ inline static bool atomic_exclusive_store_release(volatile uint64_t& atomic, con
 	asm volatile  // clang-format off
 	(
 		"stlxr %w0, %1, [%2]"
-		: "=r" (failed)
+		: "=&r" (failed)	// early clobber + read/write because of unpredictable case: identical transfer and status registers
 		: "r" (store),
 		  "r" (&atomic)
 		: "memory"			// "memory" acts as compiler r/w barrier
@@ -113,7 +113,7 @@ inline static bool atomic_exclusive_store_release(volatile uint32_t& atomic, con
 	asm volatile  // clang-format off
 	(
 		"stlxr %w0, %w1, [%2]"
-		: "=r" (failed)
+		: "=&r" (failed)	// early clobber + read/write because of unpredictable case: identical transfer and status registers
 		: "r" (store),
 		  "r" (&atomic)
 		: "memory"			// "memory" acts as compiler r/w barrier
