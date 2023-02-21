@@ -14,7 +14,7 @@ namespace ConcurrentFW
 {
 
 template<typename T>
-class Stack
+class alignas(64) Stack
 {
 	struct Node
 	{
@@ -115,7 +115,7 @@ void Stack<T>::bulk_pop_reverse_visit(std::function<void(T&)> visit)
 }
 
 template<typename T>
-void Stack<T>::node_push(Node* node)
+void Stack<T>::node_push [[ATTRIBUTE_ABA_LOOP_OPTIMIZE]] (Node* node)
 {
 	// GCC: lamdas in function pointers can be inlined completely, but must not have captures
 	bool (*inlined_modify_func)(Node* const&, Node*&, Node* const)	// implicit cast of lambda to function pointer
@@ -130,7 +130,7 @@ void Stack<T>::node_push(Node* node)
 }
 
 template<typename T>
-typename Stack<T>::Node* Stack<T>::node_pop()
+typename Stack<T>::Node* Stack<T>::node_pop [[ATTRIBUTE_ABA_LOOP_OPTIMIZE]] ()
 {
 	Node* top;	// will always be initialized in lambda
 
@@ -141,10 +141,10 @@ typename Stack<T>::Node* Stack<T>::node_pop()
 		= [](Node* const& ptr_cached, Node*& ptr_modify, Node** top) -> bool
 	{
 		*top = ptr_cached;
-		if (!*top)	// if stack is already empty, no exchange is necessary
-			return false;
-		ptr_modify = (*top)->next;
-		return true;
+		bool success = (ptr_cached != nullptr);	 // if stack is already empty, no exchange is necessary
+		if (success)
+			ptr_modify = ptr_cached->next;
+		return success;
 	};
 
 	aba_top_ptr.modify(inlined_modify_func, &top);
@@ -152,7 +152,7 @@ typename Stack<T>::Node* Stack<T>::node_pop()
 }
 
 template<typename T>
-typename Stack<T>::Node* Stack<T>::nodes_pop_all()
+typename Stack<T>::Node* Stack<T>::nodes_pop_all [[ATTRIBUTE_ABA_LOOP_OPTIMIZE]] ()
 {
 	Node* top;	// will always be initialized in lambda
 
@@ -163,10 +163,9 @@ typename Stack<T>::Node* Stack<T>::nodes_pop_all()
 		= [](Node* const& ptr_cached, Node*& ptr_modify, Node** top) -> bool
 	{
 		*top = ptr_cached;
-		if (!*top)	// if stack is already empty, no exchange is necessary
-			return false;
-		ptr_modify = nullptr;
-		return true;
+		bool success = (ptr_cached != nullptr);
+		ptr_modify = nullptr;  // won't be written if *top is nullptr, as loop is left
+		return success;
 	};
 
 	aba_top_ptr.modify(inlined_modify_func, &top);

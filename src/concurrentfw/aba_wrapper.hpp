@@ -20,6 +20,9 @@
 #include <concurrentfw/helper.hpp>
 
 
+#define ATTRIBUTE_ABA_LOOP_OPTIMIZE \
+	gnu::optimize(GNU_OPTIMIZE_ATOMIC_LOOPS_ALIGNMENT, "no-split-loops", "no-unswitch-loops")
+
 namespace ConcurrentFW
 {
 
@@ -108,12 +111,12 @@ public:
 		}
 	}
 
-	// align loop to 64 byte on LLSC platforms
+	// align loop to 64 byte on LLSC platforms (try to keep LL/SC in one cache line)
 	// align loops to 1 byte on Intel platform (as loop is UNLIKELY)
 	// https://stackoverflow.com/questions/7281699/aligning-to-cache-line-and-knowing-the-cache-line-size
 
 	template<typename... ARGS>
-	inline bool modify [[gnu::always_inline, gnu::optimize(GNU_OPTIMIZE_ATOMIC_LOOPS_ALIGNMENT)]]  // highly optimized
+	inline bool modify [[gnu::always_inline, ATTRIBUTE_ABA_LOOP_OPTIMIZE]]	// highly optimized
 	(bool (*modifier_func)(const T&, T&, ARGS...), ARGS... args)
 	{
 		bool success;

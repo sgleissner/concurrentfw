@@ -17,7 +17,7 @@ struct Test32Bit
 	: test(init)
 	{}
 
-	void set(int32_t const value)
+	void set [[ATTRIBUTE_ABA_LOOP_OPTIMIZE]] (int32_t const value)
 	{
 		bool (*inlined_modify_func)(const int32_t&, int32_t&, const int32_t) =	// implicit conversion
 			[](const int32_t& /* ptr_cached */, int32_t& value_modify, const int32_t value_init) -> bool
