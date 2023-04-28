@@ -1,7 +1,7 @@
 /*
  * concurrentfw/atomic_asm_dwcas_llsc.h
  *
- * (C) 2017-2022 by Simon Gleissner <simon@gleissner.de>, http://concurrentfw.de
+ * (C) 2017-2023 by Simon Gleissner <simon@gleissner.de>, http://concurrentfw.de
  *
  * This file is distributed under the ISC license, see file LICENSE.
  */
@@ -10,7 +10,7 @@
 #ifndef CONCURRENTFW_ATOMIC_ASM_DWCAS_LLSC_HPP_
 #define CONCURRENTFW_ATOMIC_ASM_DWCAS_LLSC_HPP_
 
-// the included files either define / provide
+// the included files either define / provide the macros
 // ATOMIC_DWCAS_NEEDED and atomic double-word load / store / compare and swap
 // or
 // ATOMIC_LLSC_NEEDED and atomic exclusive-load-aquire / exclusive-store-release
@@ -19,7 +19,7 @@
 #if defined __x86_64__ || defined __i686__
 #include <concurrentfw/atomic_asm_x86.hpp>
 #elif defined __arm__ || defined __aarch64__
-#include <concurrentfw/atomic_asm_arm.h>
+#include <concurrentfw/atomic_asm_arm.hpp>
 #else
 #error "unsupported platform"
 #endif

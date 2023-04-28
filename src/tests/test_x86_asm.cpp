@@ -14,6 +14,7 @@
 #ifndef X86_64_FAST_DW_STORE
 #define X86_64_FAST_DW_STORE
 #endif
+
 #include <concurrentfw/atomic_asm_x86.hpp>
 
 #if defined(__x86_64__)

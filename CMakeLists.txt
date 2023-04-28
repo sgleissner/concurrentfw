@@ -95,12 +95,15 @@ set(public_headers
         src/concurrentfw/version.hpp
         src/concurrentfw/helper.hpp
         src/concurrentfw/futex.hpp
+        src/concurrentfw/sysconf.hpp
         ${CMAKE_BINARY_DIR}/concurrentfw/generated_config.hpp
         )
 
 set(library_sources
         src/futex.cpp
-)
+        src/stack.cpp
+        src/sysconf.cpp
+        )
 
 set(test_sources
         src/tests/test_version.cpp
@@ -130,7 +133,7 @@ add_dependencies(concurrentfw-static concurrentfw-tests)
 set(file_generated_warning "This is a cmake-generated file, do not edit!")
 configure_file(cmake-templates/${PROJECT_NAME}.pc.in ${PROJECT_NAME}.pc @ONLY)
 configure_file(cmake-templates/config.hpp.in concurrentfw/generated_config.hpp @ONLY)
-configure_file(cmake-templates/sonar-project.properties.in ${CMAKE_SOURCE_DIR}/sonar-project.properties @ONLY)
+#configure_file(cmake-templates/sonar-project.properties.in ${CMAKE_SOURCE_DIR}/sonar-project.properties @ONLY)
 
 set_target_properties(concurrentfw PROPERTIES
         VERSION ${PROJECT_VERSION}
@@ -140,15 +143,17 @@ set_target_properties(concurrentfw PROPERTIES
         OUTPUT_NAME ${PROJECT_NAME}-${PROJECT_VERSION}
         )
 
-target_include_directories(concurrentfw INTERFACE
-        PRIVATE src
-        OUTPUT_NAME ${PROJECT_NAME}
+#target_include_directories(concurrentfw INTERFACE
+#        PRIVATE src
+#        OUTPUT_NAME ${PROJECT_NAME}
+#        )
+
+include_directories(BEFORE SYSTEM   # higher priority than older installed library
+        ${CMAKE_SOURCE_DIR}/src
+        ${CMAKE_BINARY_DIR}    # for generated_config.h
         )
 
-include_directories(
-        src
-        ${CMAKE_CURRENT_BINARY_DIR}    # for generated_config.h
-)
+message(NOTICE "Include dirs: ${CMAKE_SOURCE_DIR}/src ${CMAKE_BINARY_DIR}")
 
 target_link_libraries(concurrentfw-tests PRIVATE
         Catch2::Catch2WithMain

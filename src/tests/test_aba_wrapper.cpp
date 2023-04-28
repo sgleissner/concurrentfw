@@ -9,6 +9,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <cstdint>
+
 #include <concurrentfw/aba_wrapper.hpp>
 
 struct Test32Bit
@@ -19,6 +20,14 @@ struct Test32Bit
 
 	void set [[ATTRIBUTE_ABA_LOOP_OPTIMIZE]] (int32_t const value)
 	{
+		test.modify(
+			[&](const int32_t& /* ptr_cached */, int32_t& value_modify) -> bool
+			{
+				value_modify = value;
+				return true;
+			}
+		);
+#if 0
 		bool (*inlined_modify_func)(const int32_t&, int32_t&, const int32_t) =	// implicit conversion
 			[](const int32_t& /* ptr_cached */, int32_t& value_modify, const int32_t value_init) -> bool
 		{
@@ -26,7 +35,8 @@ struct Test32Bit
 			return true;
 		};
 
-		test.modify(inlined_modify_func, value);
+		test.modify_funcptr(inlined_modify_func, value);
+#endif
 	}
 
 	int32_t get()

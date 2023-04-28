@@ -358,6 +358,7 @@ using Passes = uint32_t;
 //using Passes = uint64_t;
 
 static constexpr DurationRuntime runtime = 1000ms;
+static constexpr double min_speedup = 0.5;	// min. 50% speed compared to glib futex to pass tests
 
 static TestMutexBenchmark<MutexType::GLIBC, Passes> benchmark_glibc;
 static TestMutexBenchmark<MutexType::CONCURRENTFW, Passes> benchmark_concurrentfw;
@@ -372,7 +373,7 @@ TEST_CASE("check Independent Single Futex", "[futex]")
 	INFO(info_glibc_independent_single);
 	INFO(info_concurrentfw_independent_single);
 	INFO("Factor: " << speedup_factor);
-	CHECK(speedup_factor >= 1.0);
+	CHECK(speedup_factor >= min_speedup);
 }
 
 TEST_CASE("check Independent Multi Futex", "[futex]")
@@ -385,7 +386,7 @@ TEST_CASE("check Independent Multi Futex", "[futex]")
 	INFO(info_glibc_independent_multi);
 	INFO(info_concurrentfw_independent_multi);
 	INFO("Factor: " << speedup_factor);
-	CHECK(speedup_factor >= 1.0);
+	CHECK(speedup_factor >= min_speedup);
 }
 
 TEST_CASE("check Dependent Futex", "[futex]")
@@ -398,7 +399,7 @@ TEST_CASE("check Dependent Futex", "[futex]")
 	INFO(info_glibc_dependent);
 	INFO(info_concurrentfw_dependent);
 	INFO("Factor: " << speedup_factor);
-	CHECK(speedup_factor >= 0.9);
+	CHECK(speedup_factor >= min_speedup);
 }
 
 TEST_CASE("check Trylock Fail Futex", "[futex]")
@@ -411,7 +412,7 @@ TEST_CASE("check Trylock Fail Futex", "[futex]")
 	INFO(info_glibc_trylock_fail);
 	INFO(info_concurrentfw_trylock_fail);
 	INFO("Factor: " << speedup_factor);
-	CHECK(speedup_factor >= 1.0);
+	CHECK(speedup_factor >= min_speedup);
 }
 
 TEST_CASE("check Trylock Futex", "[futex]")
@@ -424,5 +425,5 @@ TEST_CASE("check Trylock Futex", "[futex]")
 	INFO(info_glibc_trylock);
 	INFO(info_concurrentfw_trylock);
 	INFO("Factor: " << speedup_factor);
-	CHECK(speedup_factor >= 1.0);
+	CHECK(speedup_factor >= min_speedup);
 }

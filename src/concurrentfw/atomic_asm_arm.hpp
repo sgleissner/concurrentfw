@@ -47,8 +47,8 @@ inline static void atomic_exclusive_abort(volatile uint64_t& /*atomic*/)
 {
 	asm volatile  // clang-format off
 	(
-		"clrex"
-	);  // clang-format on
+		"clrex"		// clear exclusive monitor
+	);	// clang-format on
 }
 
 #endif
@@ -57,8 +57,8 @@ inline static void atomic_exclusive_abort(volatile uint32_t& /*atomic*/)
 {
 	asm volatile  // clang-format off
 	(
-		"clrex"
-	);  // clang-format on
+		"clrex"		// clear exclusive monitor
+	);	// clang-format on
 }
 
 #if defined(__aarch64__)
@@ -83,9 +83,9 @@ inline static void atomic_exclusive_load_aquire(volatile uint32_t& atomic, uint3
 {
 	asm volatile  // clang-format off
 	(
-		"ldaxr %w0, [%1]"
-		: "=r" (target)
-		: "r" (&atomic)
+		"ldaxr %w0, [%1]"	// load-acquire exclusive register
+		: "=r" (target)		// transfer register
+		: "r" (&atomic)		// base register
 		: "memory"			// "memory" acts as compiler r/w barrier
 	);	// clang-format on
 }
@@ -95,29 +95,29 @@ inline static void atomic_exclusive_load_aquire(volatile uint32_t& atomic, uint3
 
 inline static bool atomic_exclusive_store_release(volatile uint64_t& atomic, const uint64_t& store)
 {
-	bool failed;
+	bool failed;  // must be marked as early clobber to fix an ARM bug with unpredictable behaviour
 	asm volatile  // clang-format off
 	(
-		"stlxr %w0, %1, [%2]"
-		: "=&r" (failed)	// early clobber + read/write because of unpredictable case: identical transfer and status registers
-		: "r" (store),
-		  "r" (&atomic)
-		: "memory"			// "memory" acts as compiler r/w barrier
-	);	// clang-format on
+		"stlxr %w0, %1, [%2]"	// store-release exclusive register, returning status
+		: "=&r" (failed)		// status register is early clobber: prevent double usage with transfer/base registers
+		: "r" (store),			// transfer register
+		  "r" (&atomic)			// base register
+		: "memory"				// "memory" acts as compiler r/w barrier
+	);		  // clang-format on
 	return !failed;
 }
 
 inline static bool atomic_exclusive_store_release(volatile uint32_t& atomic, const uint32_t& store)
 {
-	bool failed;
+	bool failed;  // must be marked as early clobber to fix an ARM bug with unpredictable behaviour
 	asm volatile  // clang-format off
 	(
 		"stlxr %w0, %w1, [%2]"
-		: "=&r" (failed)	// early clobber + read/write because of unpredictable case: identical transfer and status registers
-		: "r" (store),
-		  "r" (&atomic)
+		: "=&r" (failed)	// status register is early clobber: prevent double usage with transfer/base registers
+		: "r" (store),		// transfer register
+		  "r" (&atomic)		// base register
 		: "memory"			// "memory" acts as compiler r/w barrier
-	);	// clang-format on
+	);		  // clang-format on
 	return !failed;
 }
 

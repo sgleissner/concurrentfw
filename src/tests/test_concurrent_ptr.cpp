@@ -9,6 +9,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <cstdint>
+
 #include <concurrentfw/concurrent_ptr.hpp>
 
 TEST_CASE("check Concurrent_Ptr", "[concurrent_ptr]")

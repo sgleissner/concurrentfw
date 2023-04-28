@@ -7,7 +7,9 @@
  */
 
 #include <catch2/catch_test_macros.hpp>
+
 #include <thread>
+
 #include <concurrentfw/version.hpp>
 
 TEST_CASE("check minimum number of available threads", "[threads]")

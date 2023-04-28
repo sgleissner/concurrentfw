@@ -27,6 +27,9 @@
 
 // see: https://www.boost.org/doc/libs/1_55_0/boost/atomic/detail/gcc-x86.hpp
 
+// TODO: clarify memory order for SSE version
+// https://rigtorp.se/isatomic/
+
 namespace ConcurrentFW
 {
 
@@ -36,6 +39,8 @@ ALWAYS_INLINE static void atomic_dw_load(volatile uint64_t atomic[2], uint64_t t
 {
 #ifdef X86_64_FAST_DW_LOAD
 	[[maybe_unused]] __int128_t sse_temp;  // trick allows random scratch sse register
+	compiler_barrier();
+	__atomic_thread_fence(__ATOMIC_RELEASE);
 	asm volatile  // clang-format off
 	(
 		"movdqa (%[ptr]), %[sse]\n\t"	// 128 bit aligned SSE read, atomic: see https://rigtorp.se/isatomic/
@@ -65,6 +70,8 @@ ALWAYS_INLINE static void atomic_dw_load(volatile uint64_t atomic[2], uint64_t t
 ALWAYS_INLINE static void atomic_dw_store(volatile uint64_t atomic[2], const uint64_t desired[2]) noexcept
 {
 #ifdef X86_64_FAST_DW_STORE
+	compiler_barrier();
+	__atomic_thread_fence(__ATOMIC_RELEASE);
 	[[maybe_unused]] __int128_t sse_temp;  // trick allows random scratch sse register
 	asm volatile  // clang-format off
 	(

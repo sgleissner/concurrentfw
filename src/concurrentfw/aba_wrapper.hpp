@@ -14,7 +14,7 @@
 
 #include <cstdint>
 #include <type_traits>
-#include <cstddef>
+#include <cstddef>	// offsetof()
 
 #include <concurrentfw/atomic_asm_dwcas_llsc.hpp>
 #include <concurrentfw/helper.hpp>
@@ -54,61 +54,71 @@ union alignas(ABA_ATOMIC_ALIGNMENT<T>) ABA_Wrapper
 	static_assert(sizeof(T) <= ABA_MAX_DATA_SIZE, "size of T too big.");
 	static_assert(sizeof(T) >= sizeof(uint32_t), "size of T too small.");  // TODO: may be removed later
 
+private:
+	union WrapperContent  // union is per default uninitialized
+	{
+		Atomic_ABA_BaseType<T> atomic[ABA_ARRAY_SIZE];
+		T data;
+	};
+
+	static_assert(offsetof(WrapperContent, atomic[0]) == 0, "internal atomic offset mismatch");
+	static_assert(offsetof(WrapperContent, data) == 0, "internal data offset mismatch");
+	static_assert(sizeof(WrapperContent::atomic[0]) == sizeof(WrapperContent::data), "internal content size mismatch");
+
 public:
-	using Counter = Atomic_ABA_BaseType<T>;
+	using Counter = Atomic_ABA_BaseType<T>;	 // only used on DWCAS plattforms
 
 	static constexpr size_t alignment {ABA_ATOMIC_ALIGNMENT<T>};
 
 private:
-	Atomic_ABA_BaseType<T> atomic[ABA_ARRAY_SIZE];
-	T data;
+	WrapperContent content;
 
 public:
-	ABA_Wrapper() = default;  // union is per default uninitialized
 	ABA_Wrapper(T init)
-	: data {init}
 	{
-		// if DWCAS is used, initialize counter
+		WrapperContent wrapper_init;
+		wrapper_init.data = init;
 		if constexpr (ABA_IS_PLATFORM_DWCAS)
-			atomic[1] = 1;
+		{
+			wrapper_init.atomic[1] = 1;	 // initialize counter
+			atomic_dw_store(content.atomic, wrapper_init.atomic);
+		}
+		else  // constexpr(LLSC)
+		{
+			compiler_barrier();
+			__atomic_store_n(&content.atomic[0], wrapper_init.atomic[0], __ATOMIC_RELEASE);
+			compiler_barrier();
+		}
 	}
 
 	Counter get_counter()  // for testing only
 	{
 		if constexpr (ABA_IS_PLATFORM_DWCAS)
 		{
-			ABA_Wrapper cache;
-			atomic_dw_load(atomic, cache.atomic);
+			WrapperContent cache;
+			atomic_dw_load(content.atomic, cache.atomic);
 			return cache.atomic[1];
 		}
-		else  // LLSC
+		else  // constexpr(LLSC)
 		{
 			return 0;  // no counter needed for LLSC
 		}
 	}
 
-	T get_nonatomic()  // cave
-	{
-		return data;
-	}
-
-	void set_nonatomic(const T& set)  // cave
-	{
-		data = set;
-	}
-
 	T get()
 	{
+		WrapperContent cache;
 		if constexpr (ABA_IS_PLATFORM_DWCAS)
 		{
-			ABA_Wrapper cache;
-			atomic_dw_load(atomic, cache.atomic);
-			return cache.data;
+			atomic_dw_load(content.atomic, cache.atomic);
 		}
-		else  // LLSC
+		else  // constexpr(LLSC)
 		{
-			return data;  // TODO atomic read
+			compiler_barrier();
+			cache.atomic[0] = __atomic_load_n(&content.atomic[0], __ATOMIC_ACQUIRE);
+			compiler_barrier();
 		}
+		return cache.data;
 	}
 
 	// align loop to 64 byte on LLSC platforms (try to keep LL/SC in one cache line)
@@ -116,27 +126,26 @@ public:
 	// https://stackoverflow.com/questions/7281699/aligning-to-cache-line-and-knowing-the-cache-line-size
 
 	template<typename... ARGS>
-	inline bool modify [[gnu::always_inline, ATTRIBUTE_ABA_LOOP_OPTIMIZE]]	// highly optimized
-	(bool (*modifier_func)(const T&, T&, ARGS...), ARGS... args)
+	inline bool modify [[gnu::always_inline, ATTRIBUTE_ABA_LOOP_OPTIMIZE]] (auto modifier_func)
 	{
 		bool success;
 		bool stored;
 
 		if constexpr (ABA_IS_PLATFORM_DWCAS)
 		{
-			ABA_Wrapper cache;
-			atomic_dw_load(atomic, cache.atomic);
+			WrapperContent cache;
+			atomic_dw_load(content.atomic, cache.atomic);
 
 			do
 			{
-				ABA_Wrapper desired;
+				WrapperContent desired;
 
-				success = modifier_func(cache.data, desired.data, args...);	 // will be inlined
+				success = modifier_func(cache.data, desired.data);	// will be inlined
 				if (!success) [[unlikely]]
 					break;
 
 				desired.atomic[1] = cache.atomic[1] + 1;
-				stored = atomic_dw_cas(atomic, cache.atomic, desired.atomic);
+				stored = atomic_dw_cas(content.atomic, cache.atomic, desired.atomic);
 			}
 			while (UNLIKELY(!stored));
 		}
@@ -144,18 +153,18 @@ public:
 		{
 			do
 			{
-				ABA_Wrapper desired;
-				ABA_Wrapper cache;
-				atomic_exclusive_load_aquire(atomic[0], cache.atomic[0]);
+				WrapperContent desired;
+				WrapperContent cache;
+				atomic_exclusive_load_aquire(content.atomic[0], cache.atomic[0]);
 
-				success = modifier_func(cache.data, desired.data, args...);	 // will be inlined
+				success = modifier_func(cache.data, desired.data);	// will be inlined
 				if (!success) [[unlikely]]
 				{
-					atomic_exclusive_abort(atomic[0]);
+					atomic_exclusive_abort(content.atomic[0]);
 					break;
 				}
 
-				stored = atomic_exclusive_store_release(atomic[0], desired.atomic[0]);
+				stored = atomic_exclusive_store_release(content.atomic[0], desired.atomic[0]);
 			}
 			while (UNLIKELY(!stored));
 		}
