@@ -30,6 +30,10 @@
 // TODO: clarify memory order for SSE version
 // https://rigtorp.se/isatomic/
 
+// TODO: allow MMX/SSE/SSE2 64 bit atomic loads & stores on i686
+// https://stackoverflow.com/questions/36624881/why-is-integer-assignment-on-a-naturally-aligned-variable-atomic-on-x86
+// https://stackoverflow.com/questions/48046591/how-do-i-atomically-move-a-64bit-value-in-x86-asm
+
 namespace ConcurrentFW
 {
 
@@ -132,6 +136,7 @@ ALWAYS_INLINE static void atomic_dw_load(uint32_t atomic[2], uint32_t destinatio
 		:		"cc", "memory"				// flags modified. "memory" acts as compiler r/w barrier
 	);	// clang-format on
 #elif defined(__i686__)
+	// TODO: exchange against MMX/SSE/SSE2 load, see TODO above
 	asm volatile  // clang-format off
 	(
 		"movl %%ebx, %%eax\n\t"		// eax:edx is early clobber and overwritten before cmpxchg16b
@@ -163,7 +168,7 @@ ALWAYS_INLINE static void atomic_dw_store(uint32_t atomic[2], const uint32_t des
 		:		"cc", "memory"			// flags modified, "memory" acts as compiler r/w barrier
 	);								// clang-format on
 #elif defined(__i686__)
-	//	https://stackoverflow.com/questions/48046591/how-do-i-atomically-move-a-64bit-value-in-x86-asm
+	// TODO: exchange against MMX/SSE/SSE2 load, see TODO above
 	asm volatile  // clang-format off
 	(
 		"movl 0(%[ptr]), %%eax\n\t"			// *ptr -> eax:edc (non-atomic)
