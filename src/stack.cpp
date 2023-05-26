@@ -34,14 +34,14 @@ L0:	ldaxr	x2, [x0]
 
 void* Stack::pop()
 {
-	UnspecifiedBlock top;	// will always be initialized in lambda
+	UnspecifiedBlock top;  // will always be initialized in lambda
 	stack.modify(
 		[&top](const UnspecifiedBlock& stack_cached, UnspecifiedBlock& stack_modify) -> bool
 		{
 			top = stack_cached;
 			if (top == nullptr) [[unlikely]]
 				return false;
-			stack_modify = *reinterpret_cast<UnspecifiedBlock*>(top);
+			stack_modify = *reinterpret_cast<UnspecifiedBlock*>(top);  // NOSONAR
 			return true;
 		}
 	);
