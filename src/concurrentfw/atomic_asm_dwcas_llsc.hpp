@@ -1,9 +1,9 @@
 /*
- * concurrentfw/atomic_asm_dwcas_llsc.h
+ * concurrentfw/atomic_asm_dwcas_llsc.hpp
  *
  * (C) 2017-2023 by Simon Gleissner <simon@gleissner.de>, http://concurrentfw.de
  *
- * This file is distributed under the ISC license, see file LICENSE.
+ * This file is distributed under the MIT license, see file LICENSE.
  */
 
 #pragma once
@@ -30,8 +30,8 @@ namespace ConcurrentFW
 {
 enum class PlatformABASolution : bool
 {
-	DWCAS = false,
-	LLSC = true
+    DWCAS = false,
+    LLSC = true
 };
 
 #if defined(ATOMIC_DWCAS_NEEDED)
@@ -43,4 +43,4 @@ constexpr static ConcurrentFW::PlatformABASolution PLATFORM_ABA_SOLUTION {Concur
 #endif
 }  // namespace ConcurrentFW
 
-#endif	// CONCURRENTFW_ATOMIC_ASM_DWCAS_LLSC_HPP_
+#endif  // CONCURRENTFW_ATOMIC_ASM_DWCAS_LLSC_HPP_

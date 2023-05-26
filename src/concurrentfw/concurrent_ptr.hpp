@@ -1,9 +1,9 @@
 /*
- * concurrentfw/concurrent_ptr.h
+ * concurrentfw/concurrent_ptr.hpp
  *
  * (C) 2017-2022 by Simon Gleissner <simon@gleissner.de>, http://concurrentfw.de
  *
- * This file is distributed under the ISC license, see file LICENSE.
+ * This file is distributed under the MIT license, see file LICENSE.
  */
 
 #pragma once
@@ -21,31 +21,31 @@ template<typename T>
 class Concurrent_Ptr
 {
 public:
-	Concurrent_Ptr(T* init = nullptr)
-	: aba_ptr(init)
-	{}
+    Concurrent_Ptr(T* init = nullptr)
+    : aba_ptr(init)
+    {}
 
-	void set(T* const ptr);
-	T* get();
+    void set(T* const ptr);
+    T* get();
 
-	// TODO: [[deprecated("usage of get_counter() only for testing")]]
-	typename ABA_Wrapper<T*>::Counter get_counter();
+    // TODO: [[deprecated("usage of get_counter() only for testing")]]
+    typename ABA_Wrapper<T*>::Counter get_counter();
 
-	ABA_Wrapper<T*> aba_ptr;
+    ABA_Wrapper<T*> aba_ptr;
 
-	static constexpr size_t alignment {decltype(aba_ptr)::alignment};
+    static constexpr size_t alignment {decltype(aba_ptr)::alignment};
 };
 
 template<typename T>
 void Concurrent_Ptr<T>::set [[ATTRIBUTE_ABA_LOOP_OPTIMIZE]] (T* const ptr)
 {
-	aba_ptr.modify(
-		[&](T* const& /* ptr_cached */, T*& ptr_modify) -> bool
-		{
-			ptr_modify = ptr;
-			return true;
-		}
-	);	// will be completely inlined including lambda
+    aba_ptr.modify(
+        [&](T* const& /* ptr_cached */, T*& ptr_modify) -> bool
+        {
+            ptr_modify = ptr;
+            return true;
+        }
+    );  // will be completely inlined including lambda
 
 #if 0
 	// GCC: lamdas in function pointers can be inlined completely, but must not have captures
@@ -58,7 +58,7 @@ void Concurrent_Ptr<T>::set [[ATTRIBUTE_ABA_LOOP_OPTIMIZE]] (T* const ptr)
 
 	aba_ptr.modify_funcptr(inlined_modify_func, ptr);  // will be completely inlined including lambda
 #endif
-	/*	clang-format off
+    /*	clang-format off
 	 *	compiles to (GCC 10.x x86_64):
 	 *
 	 *	0000000000000000 <_ZN12ConcurrentFW14Concurrent_PtrItE3setEPt>:
@@ -79,13 +79,13 @@ void Concurrent_Ptr<T>::set [[ATTRIBUTE_ABA_LOOP_OPTIMIZE]] (T* const ptr)
 template<typename T>
 T* Concurrent_Ptr<T>::get()
 {
-	return aba_ptr.get();
+    return aba_ptr.get();
 }
 
 template<typename T>
 typename ABA_Wrapper<T*>::Counter Concurrent_Ptr<T>::get_counter()
 {
-	return aba_ptr.get_counter();
+    return aba_ptr.get_counter();
 }
 
 }  // namespace ConcurrentFW

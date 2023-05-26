@@ -4,13 +4,13 @@
  * @file_generated_warning@
  *
  * @author    Simon Gleissner <simon@gleissner.de>, http://concurrentfw.de
- * @copyright ISC license, see file LICENSE
+ * @copyright MIT license, see file LICENSE
  * @file
  */
 
 #pragma once
-#ifndef CONCURRENTFW_CONFIG_H
-#define CONCURRENTFW_CONFIG_H
+#ifndef CONCURRENTFW_CONFIG_HPP
+#define CONCURRENTFW_CONFIG_HPP
 
 // clang-format off
 #define CONCURRENTFW_VERSION_MAJOR @PROJECT_VERSION_MAJOR@
@@ -19,4 +19,4 @@
 #define CONCURRENTFW_VERSION_TWEAK @PROJECT_VERSION_TWEAK@
 // clang-format on
 
-#endif	// CONCURRENTFW_CONFIG_H
+#endif  // CONCURRENTFW_CONFIG_HPP

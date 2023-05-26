@@ -1,9 +1,9 @@
 /*
- * concurrentfw/helper.h
+ * concurrentfw/helper.hpp
  *
  * (C) 2017-2022 by Simon Gleissner <simon@gleissner.de>, http://concurrentfw.de
  *
- * This file is distributed under the ISC license, see file LICENSE.
+ * This file is distributed under the MIT license, see file LICENSE.
  */
 
 #pragma once
@@ -25,13 +25,14 @@ namespace ConcurrentFW
 // prevent compiler reordering, does not affect CPU reordering
 static ALWAYS_INLINE void compiler_barrier()
 {
-	asm volatile("" ::: "memory");
+    asm volatile("" ::
+                     : "memory");
 }
 
 enum class PlatformWidth : unsigned char
 {
-	WIDTH_32 = 32,
-	WIDTH_64 = 64
+    WIDTH_32 = 32,
+    WIDTH_64 = 64
 };
 
 // platform helpers
