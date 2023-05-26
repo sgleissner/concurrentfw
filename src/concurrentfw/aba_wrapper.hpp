@@ -52,7 +52,8 @@ union alignas(ABA_ATOMIC_ALIGNMENT<T>) ABA_Wrapper
 	// This helper class works only with simple integral or pointer types.
 	static_assert(std::is_pointer_v<T> || std::is_integral_v<T>, "T is neither pointer, nor integral type.");
 	static_assert(sizeof(T) <= ABA_MAX_DATA_SIZE, "size of T too big.");
-	static_assert(sizeof(T) >= sizeof(uint32_t), "size of T too small.");  // TODO: may be removed later
+	static_assert(sizeof(T) >= sizeof(uint32_t), "size of T too small.");
+	static_assert((sizeof(T) == sizeof(uint32_t)) || (sizeof(T) == ABA_MAX_DATA_SIZE), "size of T does not match");
 
 private:
 	union WrapperContent  // union is per default uninitialized
