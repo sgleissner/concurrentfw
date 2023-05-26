@@ -33,8 +33,12 @@
 namespace ConcurrentFW
 {
 
+class Futex;
+
 class FutexBase
 {
+	friend Futex;
+
 public:
 	enum class Op : uint8_t
 	{
@@ -145,8 +149,8 @@ protected:
 		);
 	}
 
-protected:
-	ConcurrentFW::Atomic<int> value;  // NOSONAR allow access to atomic variable for derived classes
+private:
+	ConcurrentFW::Atomic<int> value;
 };
 
 class Futex : public FutexBase
