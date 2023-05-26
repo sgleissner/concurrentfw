@@ -37,7 +37,7 @@ template<typename T>
 static constexpr size_t ABA_ATOMIC_ALIGNMENT {ABA_ARRAY_SIZE * (ABA_IS_PLATFORM_64 && sizeof(T) > 4 ? 8 : 4)};
 
 template<typename T>
-using Atomic_ABA_BaseType = typename std::conditional<(ABA_IS_PLATFORM_64 && sizeof(T) > 4), uint64_t, uint32_t>::type;
+using Atomic_ABA_BaseType = typename std::conditional_t<(ABA_IS_PLATFORM_64 && sizeof(T) > 4), uint64_t, uint32_t>;
 
 
 // If we want to implement an ABA protection for a given type T,
