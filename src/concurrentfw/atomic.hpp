@@ -95,16 +95,14 @@ struct alignas(sizeof(T)) Atomic
 	// constructors
 	//////////////////////////////////////////////////////////////////////////
 
-	Atomic() noexcept
-	{}	// atomic is uninitialized
+	Atomic() = default;	 // atomic is uninitialized
 
 	Atomic(const T value) noexcept
 	{
 		store<AtomicMemoryOrder::RELAXED>(value);
 	}
 
-	~Atomic() noexcept
-	{}
+	~Atomic() = default;
 
 	//////////////////////////////////////////////////////////////////////////
 	// load, store
