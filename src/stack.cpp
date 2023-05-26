@@ -12,7 +12,7 @@ namespace ConcurrentFW
 void Stack::push(UnspecifiedBlock block)
 {
 	if (!block)
-		throw std::runtime_error("nullptr not allowed as block");
+		throw std::invalid_argument("nullptr not allowed as block");
 
 	stack.modify(
 		[block](const UnspecifiedBlock& stack_cached, UnspecifiedBlock& stack_modify) -> bool
