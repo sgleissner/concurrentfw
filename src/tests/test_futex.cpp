@@ -148,7 +148,7 @@ public:
 				= std::thread(worker_thread, threads_no, thread_no++, std::ref(workers), std::ref(stop_threads));
 
 		std::this_thread::sleep_for(runtime);
-		stop_threads.store<ConcurrentFW::RELAXED>(true);
+		stop_threads.store<ConcurrentFW::AtomicMemoryOrder::RELAXED>(true);
 
 		for (ThreadTuple& thread_tuple : workers)
 			thread_tuple.thread.join();
@@ -157,12 +157,12 @@ public:
 		for (ThreadTuple& thread_tuple : workers)
 			if (count_result == CountResult::CountLockedAndCompare)
 			{
-				if (thread_tuple.passes_locked != thread_tuple.passes_atomic.template load<ConcurrentFW::RELAXED>())
+				if (thread_tuple.passes_locked != thread_tuple.passes_atomic.template load<ConcurrentFW::AtomicMemoryOrder::RELAXED>())
 					throw std::logic_error("locked and atomic counters are different");
 				passes += thread_tuple.passes_locked;
 			}
 			else
-				passes += thread_tuple.passes_atomic.template load<ConcurrentFW::RELAXED>();
+				passes += thread_tuple.passes_atomic.template load<ConcurrentFW::AtomicMemoryOrder::RELAXED>();
 
 		DurationSingle duration_single = duration_cast<DurationSingle>(runtime) * threads_no / passes;
 
@@ -182,7 +182,7 @@ public:
 		for (ThreadTuple& thread_tuple : workers)
 		{
 			thread_tuple.passes_locked = 0;
-			thread_tuple.passes_atomic.template store<ConcurrentFW::RELAXED>(0);
+			thread_tuple.passes_atomic.template store<ConcurrentFW::AtomicMemoryOrder::RELAXED>(0);
 		}
 
 		auto result = run_for(
@@ -195,7 +195,7 @@ public:
 			   std::vector<ThreadTuple>& thread_tuple,
 			   ConcurrentFW::Atomic<bool>& stop_thread)
 			{
-				while (stop_thread.load<ConcurrentFW::RELAXED>() == false)
+				while (stop_thread.load<ConcurrentFW::AtomicMemoryOrder::RELAXED>() == false)
 				{
 					thread_tuple[thread_no].mutex.lock();
 					thread_tuple[thread_no].passes_locked += 1;
@@ -217,7 +217,7 @@ public:
 		for (ThreadTuple& thread_tuple : workers)
 		{
 			thread_tuple.passes_locked = 0;
-			thread_tuple.passes_atomic.template store<ConcurrentFW::RELAXED>(0);
+			thread_tuple.passes_atomic.template store<ConcurrentFW::AtomicMemoryOrder::RELAXED>(0);
 		}
 
 		auto result = run_for(
@@ -231,7 +231,7 @@ public:
 			   ConcurrentFW::Atomic<bool>& stop_thread)
 			{
 				size_t thread_access = 0;
-				while (stop_thread.load<ConcurrentFW::RELAXED>() == false)
+				while (stop_thread.load<ConcurrentFW::AtomicMemoryOrder::RELAXED>() == false)
 				{
 					thread_tuple[thread_access].mutex.lock();
 					thread_tuple[thread_access].passes_locked += 1;
@@ -253,7 +253,7 @@ public:
 		{
 			thread_tuple.mutex.lock();
 			thread_tuple.passes_locked = 0;
-			thread_tuple.passes_atomic.template store<ConcurrentFW::RELAXED>(0);
+			thread_tuple.passes_atomic.template store<ConcurrentFW::AtomicMemoryOrder::RELAXED>(0);
 		}
 
 		auto result = run_for(
@@ -267,7 +267,7 @@ public:
 			   ConcurrentFW::Atomic<bool>& stop_thread)
 			{
 				size_t thread_access = 0;
-				while (stop_thread.load<ConcurrentFW::RELAXED>() == false)
+				while (stop_thread.load<ConcurrentFW::AtomicMemoryOrder::RELAXED>() == false)
 				{
 					if (thread_tuple[thread_access].mutex.trylock())
 					{
@@ -305,7 +305,7 @@ public:
 		for (ThreadTuple& thread_tuple : workers)
 		{
 			thread_tuple.passes_locked = 0;
-			thread_tuple.passes_atomic.template store<ConcurrentFW::RELAXED>(0);
+			thread_tuple.passes_atomic.template store<ConcurrentFW::AtomicMemoryOrder::RELAXED>(0);
 		}
 
 		auto result = run_for(
@@ -319,7 +319,7 @@ public:
 			   ConcurrentFW::Atomic<bool>& stop_thread)
 			{
 				size_t thread_access = 0;
-				while (stop_thread.load<ConcurrentFW::RELAXED>() == false)
+				while (stop_thread.load<ConcurrentFW::AtomicMemoryOrder::RELAXED>() == false)
 				{
 					if (thread_tuple[thread_access].mutex.trylock())
 					{

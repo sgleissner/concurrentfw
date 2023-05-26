@@ -41,10 +41,10 @@ static void worker(const uint32_t thread, const uint32_t threads)
 	uint64_t stack_operations = 0;
 	uint32_t push_thread = 0;
 
-	while (!end_test.load<ConcurrentFW::RELAXED>())
+	while (!end_test.load<ConcurrentFW::AtomicMemoryOrder::RELAXED>())
 	{
 		void* block;
-		while (!end_test.load<ConcurrentFW::RELAXED>() && ((block = stacks[thread].pop()) != nullptr))
+		while (!end_test.load<ConcurrentFW::AtomicMemoryOrder::RELAXED>() && ((block = stacks[thread].pop()) != nullptr))
 		{
 			stack_operations += 2;
 			stacks[push_thread].push(block);
@@ -55,7 +55,7 @@ static void worker(const uint32_t thread, const uint32_t threads)
 
 	stack_operations--;
 
-	overall_stack_operations.add_fetch<ConcurrentFW::RELAXED>(stack_operations);
+	overall_stack_operations.add_fetch<ConcurrentFW::AtomicMemoryOrder::RELAXED>(stack_operations);
 }
 
 static std::tuple<uint64_t /* expected result */, uint64_t /* result */, uint64_t /* performance */> test_stack(
@@ -83,7 +83,7 @@ static std::tuple<uint64_t /* expected result */, uint64_t /* result */, uint64_
 	}
 
 	std::this_thread::sleep_for(runtime);
-	end_test.store<ConcurrentFW::RELAXED>(true);
+	end_test.store<ConcurrentFW::AtomicMemoryOrder::RELAXED>(true);
 
 	for (auto& thread : threads)
 		thread.join();
@@ -102,7 +102,7 @@ static std::tuple<uint64_t /* expected result */, uint64_t /* result */, uint64_
 	delete[] stacks;
 	threads.clear();
 
-	return {expected, counted, overall_stack_operations.load<ConcurrentFW::RELAXED>()};
+	return {expected, counted, overall_stack_operations.load<ConcurrentFW::AtomicMemoryOrder::RELAXED>()};
 }
 
 TEST_CASE("check of concurrent stacks", "[stack]")
