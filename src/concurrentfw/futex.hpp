@@ -146,7 +146,7 @@ protected:
 	}
 
 protected:
-	ConcurrentFW::Atomic<int> value;
+	ConcurrentFW::Atomic<int> value;  // NOSONAR allow access to atomic variable for derived classes
 };
 
 class Futex : public FutexBase
