@@ -112,7 +112,7 @@ protected:
 		);
 	}
 
-	ALWAYS_INLINE int futex_wake_op(
+	ALWAYS_INLINE int futex_wake_op(  // NOSONAR
 		int wakeups1,
 		uint32_t wakeups2,
 		volatile int* address2,
