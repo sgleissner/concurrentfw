@@ -35,7 +35,7 @@ namespace ConcurrentFW
 
 #if defined(__x86_64__)
 
-ALWAYS_INLINE static void atomic_dw_load(volatile uint64_t atomic[2], uint64_t target[2]) noexcept
+ALWAYS_INLINE static void atomic_dw_load(uint64_t atomic[2], uint64_t target[2]) noexcept
 {
 #ifdef X86_64_FAST_DW_LOAD
 	[[maybe_unused]] __int128_t sse_temp;  // trick allows random scratch sse register
@@ -67,7 +67,7 @@ ALWAYS_INLINE static void atomic_dw_load(volatile uint64_t atomic[2], uint64_t t
 #endif
 }
 
-ALWAYS_INLINE static void atomic_dw_store(volatile uint64_t atomic[2], const uint64_t desired[2]) noexcept
+ALWAYS_INLINE static void atomic_dw_store(uint64_t atomic[2], const uint64_t desired[2]) noexcept
 {
 #ifdef X86_64_FAST_DW_STORE
 	compiler_barrier();
@@ -100,9 +100,7 @@ ALWAYS_INLINE static void atomic_dw_store(volatile uint64_t atomic[2], const uin
 #endif
 }
 
-ALWAYS_INLINE static bool atomic_dw_cas(
-	volatile uint64_t atomic[2], uint64_t expected[2], const uint64_t desired[2]
-) noexcept
+ALWAYS_INLINE static bool atomic_dw_cas(uint64_t atomic[2], uint64_t expected[2], const uint64_t desired[2]) noexcept
 {
 	bool exchanged;
 	asm volatile  // clang-format off
@@ -121,7 +119,7 @@ ALWAYS_INLINE static bool atomic_dw_cas(
 
 #endif
 
-ALWAYS_INLINE static void atomic_dw_load(volatile uint32_t atomic[2], uint32_t destination[2]) noexcept
+ALWAYS_INLINE static void atomic_dw_load(uint32_t atomic[2], uint32_t destination[2]) noexcept
 {
 #if defined(__x86_64__)
 	asm volatile  // clang-format off
@@ -147,7 +145,7 @@ ALWAYS_INLINE static void atomic_dw_load(volatile uint32_t atomic[2], uint32_t d
 #endif
 }
 
-ALWAYS_INLINE static void atomic_dw_store(volatile uint32_t atomic[2], const uint32_t desired[2]) noexcept
+ALWAYS_INLINE static void atomic_dw_store(uint32_t atomic[2], const uint32_t desired[2]) noexcept
 {
 #if defined(__x86_64__)
 	[[maybe_unused]] uint32_t unused1;	// will be discarded
@@ -181,7 +179,7 @@ ALWAYS_INLINE static void atomic_dw_store(volatile uint32_t atomic[2], const uin
 #endif
 }
 
-ALWAYS_INLINE static bool atomic_dw_cas(volatile uint32_t atomic[2], uint32_t expected[2], const uint32_t desired[2])
+ALWAYS_INLINE static bool atomic_dw_cas(uint32_t atomic[2], uint32_t expected[2], const uint32_t desired[2])
 {
 	bool exchanged;
 	asm volatile  // clang-format off
