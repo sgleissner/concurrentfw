@@ -49,6 +49,10 @@ static consteval int memorder(AtomicMemoryOrder atomic_memory_order)
 //////////////////////////////////////////////////////////////////////////
 
 template<AtomicMemoryOrder MEMORDER>
+concept AtomicMemoryOrderAcquireConsume
+	= (MEMORDER == AtomicMemoryOrder::ACQUIRE) || (MEMORDER == AtomicMemoryOrder::CONSUME);
+
+template<AtomicMemoryOrder MEMORDER>
 concept AtomicMemoryOrderLoad = (MEMORDER == AtomicMemoryOrder::RELAXED) || (MEMORDER == AtomicMemoryOrder::SEQ_CST)
 								|| (MEMORDER == AtomicMemoryOrder::ACQUIRE) || (MEMORDER == AtomicMemoryOrder::CONSUME);
 
