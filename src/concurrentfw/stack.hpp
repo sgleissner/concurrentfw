@@ -27,7 +27,7 @@ private:
 
 public:
 	void push [[ATTRIBUTE_ABA_LOOP_OPTIMIZE]] (UnspecifiedBlock block);
-	void* pop [[ATTRIBUTE_ABA_LOOP_OPTIMIZE]] ();
+	UnspecifiedBlock pop [[ATTRIBUTE_ABA_LOOP_OPTIMIZE]] ();
 };
 
 }  // namespace ConcurrentFW

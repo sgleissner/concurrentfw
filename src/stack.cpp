@@ -32,7 +32,7 @@ L0:	ldaxr	x2, [x0]
 */
 }
 
-void* Stack::pop()
+Stack::UnspecifiedBlock Stack::pop()
 {
 	UnspecifiedBlock top;  // will always be initialized in lambda
 	stack.modify(
