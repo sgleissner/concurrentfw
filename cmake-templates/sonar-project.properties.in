@@ -27,3 +27,4 @@ sonar.testExecutionReportPaths=unittests/reports/unittest-x86_64.xml
 # https://community.sonarsource.com/t/how-to-make-sonarqube-see-gcovr-cobertura-reports/56270/2
 # https://github.com/sonarsource-cfamily-examples/linux-cmake-gcovr-gh-actions-sc
 sonar.coverageReportPaths=unittests/reports/coverage-x86_64.xml
+# Test
