@@ -19,11 +19,12 @@ namespace ConcurrentFW
 
 class alignas(64) Stack	 // align to cache line
 {
+	using UnspecifiedBlock = void*;
 private:
-	ABA_Wrapper<void*> stack {nullptr};
+	ABA_Wrapper<UnspecifiedBlock> stack {nullptr};
 
 public:
-	void push [[ATTRIBUTE_ABA_LOOP_OPTIMIZE]] (void* block);
+	void push [[ATTRIBUTE_ABA_LOOP_OPTIMIZE]] (UnspecifiedBlock block);
 	void* pop [[ATTRIBUTE_ABA_LOOP_OPTIMIZE]] ();
 };
 

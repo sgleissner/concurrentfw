@@ -9,15 +9,15 @@
 namespace ConcurrentFW
 {
 
-void Stack::push(void* block)
+void Stack::push(UnspecifiedBlock block)
 {
 	if (!block)
 		throw std::runtime_error("nullptr not allowed as block");
 
 	stack.modify(
-		[=](void* const& stack_cached, void*& stack_modify) -> bool
+		[block](const UnspecifiedBlock& stack_cached, UnspecifiedBlock& stack_modify) -> bool
 		{
-			*reinterpret_cast<void**>(block) = stack_cached;
+			*reinterpret_cast<UnspecifiedBlock*>(block) = stack_cached;
 			stack_modify = block;
 			return true;
 		}
@@ -34,14 +34,14 @@ L0:	ldaxr	x2, [x0]
 
 void* Stack::pop()
 {
-	void* top;	// will always be initialized in lambda
+	UnspecifiedBlock top;	// will always be initialized in lambda
 	stack.modify(
-		[&](void* const& stack_cached, void*& stack_modify) -> bool
+		[&top](const UnspecifiedBlock& stack_cached, UnspecifiedBlock& stack_modify) -> bool
 		{
 			top = stack_cached;
 			if (top == nullptr) [[unlikely]]
 				return false;
-			stack_modify = *reinterpret_cast<void**>(top);
+			stack_modify = *reinterpret_cast<UnspecifiedBlock*>(top);
 			return true;
 		}
 	);
