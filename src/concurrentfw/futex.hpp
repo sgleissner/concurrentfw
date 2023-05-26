@@ -131,7 +131,7 @@ protected:
 		);
 	}
 
-	ALWAYS_INLINE int futex_wait_bitset(uint32_t mask, int expected, struct timespec* timeout_absolute) noexcept
+	ALWAYS_INLINE int futex_wait_bitset(uint32_t mask, int expected, const struct timespec* timeout_absolute) noexcept
 	{
 		return static_cast<int>(syscall_futex(
 			&value.atomic, FUTEX_WAIT_BITSET_PRIVATE, expected, timeout_absolute, nullptr, static_cast<int>(mask)
