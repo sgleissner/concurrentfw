@@ -3,12 +3,12 @@ Concurrency C++ framework for Linux
 
 published under the ISC license, see file LICENSE.
 
-(c) 2017-2022 Simon Gleissner <simon@gleissner.de>, http://concurrentfw.de
+(c) 2017-2023 Simon Gleissner <simon@gleissner.de>, http://concurrentfw.de
 
 hardware-dependencies:
 
-* x86_64:  min. Nehalem-architecture (cmpxchg16b needed)
-* AArch64: tbd., currently testet on Raspberry PI 4
+* x86-64-v2:  min. Nehalem/Jaguar 64 bit architecture (cmpxchg16b needed)
+* armv8-a: all 64 bit architectures, testet on Raspberry PI 4
 
 32 bit architectures currently untested and probably broken
 

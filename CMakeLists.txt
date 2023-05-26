@@ -47,18 +47,17 @@ set(CMAKE_CXX_STANDARD 20)
 
 if ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
     add_compile_options(
-            -mcx16
-            -mmmx
-            -msse
-            -msse2
-            -msse3
-            -DX86_64_FAST_DW_LOAD
-            -DX86_64_FAST_DW_STORE
+            -march=x86-64-v2        # Intel: Nehalem, AMD: Jaguar
+            -DX86_64_FAST_DW_LOAD   # TODO: probably needs AVX to be atomic
+            -DX86_64_FAST_DW_STORE  # TODO: probably needs AVX to be atomic
     )
 elseif ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "i686")
     message(FATAL_ERROR "${CMAKE_SYSTEM_PROCESSOR}: not yet supported")
 elseif ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "aarch64")
-    add_compile_options(-march=armv8-a -mtune=cortex-a72) # Minimum architecure should be a RasPi 4
+    add_compile_options(
+            -march=armv8-a          # minimum architecure should be a RasPi 3
+            -mtune=cortex-a72       # optimized for RasPi 4
+    )
 elseif ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm")
     message(FATAL_ERROR "${CMAKE_SYSTEM_PROCESSOR}: not yet supported")
 else ()
@@ -118,7 +117,7 @@ set(test_sources
 
 add_library(concurrentfw SHARED
         ${library_sources}
-)
+        )
 
 add_library(concurrentfw-static STATIC
         ${library_sources}
