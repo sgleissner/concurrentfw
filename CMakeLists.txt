@@ -132,7 +132,8 @@ add_dependencies(concurrentfw-static concurrentfw-tests)
 set(file_generated_warning "This is a cmake-generated file, do not edit!")
 configure_file(cmake-templates/${PROJECT_NAME}.pc.in ${PROJECT_NAME}.pc @ONLY)
 configure_file(cmake-templates/config.hpp.in concurrentfw/generated_config.hpp @ONLY)
-#configure_file(cmake-templates/sonar-project.properties.in ${CMAKE_SOURCE_DIR}/sonar-project.properties @ONLY)
+file(REMOVE ${CMAKE_SOURCE_DIR}/sonar-project.properties)
+configure_file(cmake-templates/sonar-project.properties.in ${CMAKE_SOURCE_DIR}/sonar-project.properties @ONLY)
 
 set_target_properties(concurrentfw PROPERTIES
         VERSION ${PROJECT_VERSION}

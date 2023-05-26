@@ -1,4 +1,6 @@
 # @file_generated_warning@
+
+# SonarCloud user settings
 sonar.projectKey=sgleissner_@PROJECT_NAME@
 sonar.organization=sgleissner
 
