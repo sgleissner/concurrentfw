@@ -39,7 +39,7 @@ enum class AtomicMemoryOrder : int
 	SEQ_CST = __ATOMIC_SEQ_CST
 };
 
-static consteval inline int memorder(AtomicMemoryOrder atomic_memory_order)
+static consteval int memorder(AtomicMemoryOrder atomic_memory_order)
 {
 	return static_cast<int>(atomic_memory_order);
 }
