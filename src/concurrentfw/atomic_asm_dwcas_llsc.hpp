@@ -30,8 +30,8 @@ namespace ConcurrentFW
 {
 enum class PlatformABASolution : bool
 {
-	DWCAS = false,
-	LLSC = true
+    DWCAS = false,
+    LLSC = true
 };
 
 #if defined(ATOMIC_DWCAS_NEEDED)
@@ -43,4 +43,4 @@ constexpr static ConcurrentFW::PlatformABASolution PLATFORM_ABA_SOLUTION {Concur
 #endif
 }  // namespace ConcurrentFW
 
-#endif	// CONCURRENTFW_ATOMIC_ASM_DWCAS_LLSC_HPP_
+#endif  // CONCURRENTFW_ATOMIC_ASM_DWCAS_LLSC_HPP_

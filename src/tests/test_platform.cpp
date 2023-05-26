@@ -14,7 +14,7 @@
 
 TEST_CASE("check minimum number of available threads", "[threads]")
 {
-	uint32_t hw_threads = std::thread::hardware_concurrency();
-	INFO("available hardware threads: " << hw_threads);
-	REQUIRE(hw_threads >= 2);  // github runner limit
+    uint32_t hw_threads = std::thread::hardware_concurrency();
+    INFO("available hardware threads: " << hw_threads);
+    REQUIRE(hw_threads >= 2);  // github runner limit
 }

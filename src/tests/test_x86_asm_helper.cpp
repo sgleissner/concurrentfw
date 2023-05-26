@@ -18,12 +18,12 @@
 
 void slow_atomic_dw_load(uint64_t atomic[2], uint64_t target[2])
 {
-	ConcurrentFW::atomic_dw_load(atomic, target);
+    ConcurrentFW::atomic_dw_load(atomic, target);
 }
 
 void slow_atomic_dw_store(uint64_t atomic[2], const uint64_t desired[2])
 {
-	ConcurrentFW::atomic_dw_store(atomic, desired);
+    ConcurrentFW::atomic_dw_store(atomic, desired);
 }
 
 #endif
@@ -32,12 +32,12 @@ void slow_atomic_dw_store(uint64_t atomic[2], const uint64_t desired[2])
 
 void slow_atomic_dw_load(uint32_t atomic[2], uint32_t target[2])
 {
-	ConcurrentFW::atomic_dw_load(atomic, target);
+    ConcurrentFW::atomic_dw_load(atomic, target);
 }
 
 void slow_atomic_dw_store(uint32_t atomic[2], const uint32_t desired[2])
 {
-	ConcurrentFW::atomic_dw_store(atomic, desired);
+    ConcurrentFW::atomic_dw_store(atomic, desired);
 }
 
 #endif

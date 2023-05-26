@@ -12,14 +12,14 @@ namespace ConcurrentFW
 
 size_t cache_line()
 {
-	static const size_t value = sysconf<size_t>(_SC_LEVEL1_DCACHE_LINESIZE);
-	return value;
+    static const size_t value = sysconf<size_t>(_SC_LEVEL1_DCACHE_LINESIZE);
+    return value;
 }
 
 size_t page_size()
 {
-	static const size_t value = sysconf<size_t>(_SC_PAGESIZE);
-	return value;
+    static const size_t value = sysconf<size_t>(_SC_PAGESIZE);
+    return value;
 }
 
 }  // namespace ConcurrentFW

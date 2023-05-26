@@ -20,7 +20,7 @@
 
 #define ATOMIC_LLSC_NEEDED
 
-#if __ARM_ARCH < 7	// minimum ARMv7, shall be ARMv6K in the future
+#if __ARM_ARCH < 7  // minimum ARMv7, shall be ARMv6K in the future
 #error "ARMv7 or higher needed"
 #endif
 
@@ -45,14 +45,14 @@ namespace ConcurrentFW
 
 inline static void atomic_exclusive_abort(uint64_t& /*atomic*/)
 {
-	asm volatile("clrex");	// clear exclusive monitor
+    asm volatile("clrex");  // clear exclusive monitor
 }
 
 #endif
 
 inline static void atomic_exclusive_abort(uint32_t& /*atomic*/)
 {
-	asm volatile("clrex");	// clear exclusive monitor
+    asm volatile("clrex");  // clear exclusive monitor
 }
 
 #if defined(__aarch64__)
@@ -64,18 +64,18 @@ inline static void atomic_exclusive_abort(uint32_t& /*atomic*/)
 
 inline static void atomic_exclusive_load_aquire(uint64_t& atomic, uint64_t& transfer)
 {
-	asm volatile("ldaxr %0, [%1]"  // load-acquire exclusive register
-				 : "=r"(transfer)  // transfer register
-				 : "r"(&atomic)	   // atomic base register
-				 : "memory");	   // "memory" acts as compiler r/w barrier
+    asm volatile("ldaxr %0, [%1]"  // load-acquire exclusive register
+                 : "=r"(transfer)  // transfer register
+                 : "r"(&atomic)    // atomic base register
+                 : "memory");      // "memory" acts as compiler r/w barrier
 }
 
 inline static void atomic_exclusive_load_aquire(uint32_t& atomic, uint32_t& transfer)
 {
-	asm volatile("ldaxr %w0, [%1]"	// load-acquire exclusive register
-				 : "=r"(transfer)	// transfer register
-				 : "r"(&atomic)		// atomic base register
-				 : "memory");		// "memory" acts as compiler r/w barrier
+    asm volatile("ldaxr %w0, [%1]"  // load-acquire exclusive register
+                 : "=r"(transfer)   // transfer register
+                 : "r"(&atomic)     // atomic base register
+                 : "memory");       // "memory" acts as compiler r/w barrier
 }
 
 // ldaxp documentation
@@ -83,20 +83,20 @@ inline static void atomic_exclusive_load_aquire(uint32_t& atomic, uint32_t& tran
 
 inline static void atomic_exclusive_load_pair_aquire(uint64_t atomic[2], uint64_t transfer[2])
 {
-	asm volatile("ldaxp %0, %1, [%2]"  // load-acquire exclusive register pair
-				 : "=r"(transfer[0]),  // first transfer register
-				   "=r"(transfer[1])   // second transfer register
-				 : "r"(&atomic[0])	   // atomic base register
-				 : "memory");		   // "memory" acts as compiler r/w barrier
+    asm volatile("ldaxp %0, %1, [%2]"  // load-acquire exclusive register pair
+                 : "=r"(transfer[0]),  // first transfer register
+                   "=r"(transfer[1])   // second transfer register
+                 : "r"(&atomic[0])     // atomic base register
+                 : "memory");          // "memory" acts as compiler r/w barrier
 }
 
 inline static void atomic_exclusive_load_pair_aquire(uint32_t atomic[2], uint32_t transfer[2])
 {
-	asm volatile("ldaxp %w0, %w1, [%2]"	 // load-acquire exclusive register pair
-				 : "=r"(transfer[0]),	 // first transfer register
-				   "=r"(transfer[1])	 // second transfer register
-				 : "r"(&atomic[0])		 // atomic base register
-				 : "memory");			 // "memory" acts as compiler r/w barrier
+    asm volatile("ldaxp %w0, %w1, [%2]"  // load-acquire exclusive register pair
+                 : "=r"(transfer[0]),    // first transfer register
+                   "=r"(transfer[1])     // second transfer register
+                 : "r"(&atomic[0])       // atomic base register
+                 : "memory");            // "memory" acts as compiler r/w barrier
 }
 
 // stlxr documentation
@@ -104,24 +104,24 @@ inline static void atomic_exclusive_load_pair_aquire(uint32_t atomic[2], uint32_
 
 inline static bool atomic_exclusive_store_release(uint64_t& atomic, const uint64_t& transfer)
 {
-	uint32_t failed;					// native size of result
-	asm volatile("stlxr %w0, %1, [%2]"	// store-release exclusive register, returning status
-				 : "=&r"(failed)   // store result, early clobber: prevent double usage with transfer/base registers
-				 : "r"(transfer),  // transfer register
-				   "r"(&atomic)	   // atomic base register
-				 : "memory");	   // "memory" acts as compiler r/w barrier
-	return (failed != 0);
+    uint32_t failed;                    // native size of result
+    asm volatile("stlxr %w0, %1, [%2]"  // store-release exclusive register, returning status
+                 : "=&r"(failed)   // store result, early clobber: prevent double usage with transfer/base registers
+                 : "r"(transfer),  // transfer register
+                   "r"(&atomic)    // atomic base register
+                 : "memory");      // "memory" acts as compiler r/w barrier
+    return (failed != 0);
 }
 
 inline static bool atomic_exclusive_store_release(uint32_t& atomic, const uint32_t& transfer)
 {
-	uint32_t failed;					 // native size of result
-	asm volatile("stlxr %w0, %w1, [%2]"	 // store-release exclusive register, returning status
-				 : "=&r"(failed)   // store result, early clobber: prevent double usage with transfer/base registers
-				 : "r"(transfer),  // transfer register
-				   "r"(&atomic)	   // atomic base register
-				 : "memory");	   // "memory" acts as compiler r/w barrier
-	return (failed != 0);
+    uint32_t failed;                     // native size of result
+    asm volatile("stlxr %w0, %w1, [%2]"  // store-release exclusive register, returning status
+                 : "=&r"(failed)   // store result, early clobber: prevent double usage with transfer/base registers
+                 : "r"(transfer),  // transfer register
+                   "r"(&atomic)    // atomic base register
+                 : "memory");      // "memory" acts as compiler r/w barrier
+    return (failed != 0);
 }
 
 // stlxp documentation
@@ -129,49 +129,49 @@ inline static bool atomic_exclusive_store_release(uint32_t& atomic, const uint32
 
 inline static bool atomic_exclusive_store_pair_release(uint64_t atomic[2], const uint64_t[2] transfer)
 {
-	uint32_t failed;						// native size of result
-	asm volatile("stlxp %w0, %1, %2, [%3]"	// store-release exclusive register pair, returning status
-				 : "=&r"(failed)	  // store result, early clobber: prevent double usage with transfer/base registers
-				 : "r"(transfer[0]),  // first transfer register
-				   "r"(transfer[1]),  // second transfer register
-				   "r"(&atomic[0])	  // atomic base register
-				 : "memory");		  // "memory" acts as compiler r/w barrier
-	return (failed != 0);
+    uint32_t failed;                        // native size of result
+    asm volatile("stlxp %w0, %1, %2, [%3]"  // store-release exclusive register pair, returning status
+                 : "=&r"(failed)      // store result, early clobber: prevent double usage with transfer/base registers
+                 : "r"(transfer[0]),  // first transfer register
+                   "r"(transfer[1]),  // second transfer register
+                   "r"(&atomic[0])    // atomic base register
+                 : "memory");         // "memory" acts as compiler r/w barrier
+    return (failed != 0);
 }
 
 inline static bool atomic_exclusive_store_pair_release(uint32_t atomic[2], const uint32_t transfer[2])
 {
-	uint32_t failed;						  // native size of result
-	asm volatile("stlxp %w0, %w1, %w2, [%3]"  // store-release exclusive register pair, returning status
-				 : "=&r"(failed)	  // store result, early clobber: prevent double usage with transfer/base registers
-				 : "r"(transfer[0]),  // first transfer register
-				   "r"(transfer[1]),  // second transfer register
-				   "r"(&atomic[0])	  // atomic base register
-				 : "memory");		  // "memory" acts as compiler r/w barrier
-	return (failed != 0);
+    uint32_t failed;                          // native size of result
+    asm volatile("stlxp %w0, %w1, %w2, [%3]"  // store-release exclusive register pair, returning status
+                 : "=&r"(failed)      // store result, early clobber: prevent double usage with transfer/base registers
+                 : "r"(transfer[0]),  // first transfer register
+                   "r"(transfer[1]),  // second transfer register
+                   "r"(&atomic[0])    // atomic base register
+                 : "memory");         // "memory" acts as compiler r/w barrier
+    return (failed != 0);
 }
 
 #elif defined(__arm__)
 
-#if __ARM_ARCH >= 8	 // ARMv8 and higher
+#if __ARM_ARCH >= 8  // ARMv8 and higher
 
 inline static void atomic_exclusive_load_aquire(uint32_t& atomic, uint32_t& transfer)
 {
-	asm volatile("ldaex %0, [%1]"  // load-acquire exclusive register
-				 : "=r"(transfer)  // transfer register
-				 : "r"(&atomic)	   // atomic base register
-				 : "memory");	   // "memory" acts as compiler r/w barrier
+    asm volatile("ldaex %0, [%1]"  // load-acquire exclusive register
+                 : "=r"(transfer)  // transfer register
+                 : "r"(&atomic)    // atomic base register
+                 : "memory");      // "memory" acts as compiler r/w barrier
 }
 
 inline static bool atomic_exclusive_store_release(uint32_t& atomic, const uint32_t& transfer)
 {
-	uint32_t failed;				   // native size of result
-	asm volatile("stlex %0, %1, [%2]"  // store-release exclusive register, returning status
-				 : "=&r"(failed)	   // store result, early clobber: prevent double usage with transfer/base registers
-				 : "r"(transfer),	   // transfer register
-				   "r"(&atomic)		   // atomic base register
-				 : "memory");		   // "memory" acts as compiler r/w barrier
-	return (failed != 0);
+    uint32_t failed;                   // native size of result
+    asm volatile("stlex %0, %1, [%2]"  // store-release exclusive register, returning status
+                 : "=&r"(failed)       // store result, early clobber: prevent double usage with transfer/base registers
+                 : "r"(transfer),      // transfer register
+                   "r"(&atomic)        // atomic base register
+                 : "memory");          // "memory" acts as compiler r/w barrier
+    return (failed != 0);
 }
 
 // register pairs ARMv8 32bit
@@ -181,48 +181,48 @@ inline static bool atomic_exclusive_store_release(uint32_t& atomic, const uint32
 
 inline static void atomic_exclusive_load_pair_aquire(uint32_t atomic[2], uint32_t transfer[2])
 {
-	uint64_t pair;
-	asm volatile("ldaexd %Q0, %R0, [%1]"  // load-acquire exclusive register pair
-				 : "=r"(pair)			  // transfer register pair
-				 : "r"(&atomic[0])		  // atomic base register
-				 : "memory");			  // "memory" acts as compiler r/w barrier
-	transfer[0] = static_cast<uint32_t>(pair);
-	transfer[1] = static_cast<uint32_t>(pair >> 32);
+    uint64_t pair;
+    asm volatile("ldaexd %Q0, %R0, [%1]"  // load-acquire exclusive register pair
+                 : "=r"(pair)             // transfer register pair
+                 : "r"(&atomic[0])        // atomic base register
+                 : "memory");             // "memory" acts as compiler r/w barrier
+    transfer[0] = static_cast<uint32_t>(pair);
+    transfer[1] = static_cast<uint32_t>(pair >> 32);
 }
 
 inline static bool atomic_exclusive_store_pair_release(uint32_t atomic[2], const uint32_t transfer[2])
 {
-	const uint64_t pair = static_cast<const uint64_t>(transfer[0]) | (static_cast<const uint64_t>(transfer[1]) << 32);
-	uint32_t failed;						  // native size of result
-	asm volatile("stlexd %0, %Q1, %R1, [%2]"  // store-release exclusive register pair
-				 : "=&r"(failed)	// store result, early clobber: prevent double usage with transfer/base registers
-				 : "r"(pair),		// transfer register pair
-				   "r"(&atomic[0])	// atomic base register
-				 : "memory");		// "memory" acts as compiler r/w barrier
-	return (failed != 0);
+    const uint64_t pair = static_cast<const uint64_t>(transfer[0]) | (static_cast<const uint64_t>(transfer[1]) << 32);
+    uint32_t failed;                          // native size of result
+    asm volatile("stlexd %0, %Q1, %R1, [%2]"  // store-release exclusive register pair
+                 : "=&r"(failed)    // store result, early clobber: prevent double usage with transfer/base registers
+                 : "r"(pair),       // transfer register pair
+                   "r"(&atomic[0])  // atomic base register
+                 : "memory");       // "memory" acts as compiler r/w barrier
+    return (failed != 0);
 }
 
 #elif __ARM_ARCH >= 7  // ARMv7
 
 inline static void atomic_exclusive_load_aquire(uint32_t& atomic, uint32_t& transfer)
 {
-	asm volatile("ldrex %0, [%1]\n\t "	// load exclusive register
-				 "dmb"					// full memory fence
-				 : "=r"(transfer)		// transfer register
-				 : "r"(&atomic)			// atomic base register
-				 : "memory");			// "memory" acts as compiler r/w barrier
+    asm volatile("ldrex %0, [%1]\n\t "  // load exclusive register
+                 "dmb"                  // full memory fence
+                 : "=r"(transfer)       // transfer register
+                 : "r"(&atomic)         // atomic base register
+                 : "memory");           // "memory" acts as compiler r/w barrier
 }
 
 inline static bool atomic_exclusive_store_release(uint32_t& atomic, const uint32_t& transfer)
 {
-	uint32_t failed;				   // native size of result
-	asm volatile("dmb\n\t"			   // full memory fence
-				 "strex %0, %1, [%2]"  // store exclusive register, returning status
-				 : "=&r"(failed)	   // store result, early clobber: prevent double usage with transfer/base registers
-				 : "r"(transfer),	   // transfer register
-				   "r"(&atomic)		   // atomic base register
-				 : "memory");		   // "memory" acts as compiler r/w barrier
-	return (failed != 0);
+    uint32_t failed;                   // native size of result
+    asm volatile("dmb\n\t"             // full memory fence
+                 "strex %0, %1, [%2]"  // store exclusive register, returning status
+                 : "=&r"(failed)       // store result, early clobber: prevent double usage with transfer/base registers
+                 : "r"(transfer),      // transfer register
+                   "r"(&atomic)        // atomic base register
+                 : "memory");          // "memory" acts as compiler r/w barrier
+    return (failed != 0);
 }
 
 // register pairs ARMv7
@@ -232,39 +232,39 @@ inline static bool atomic_exclusive_store_release(uint32_t& atomic, const uint32
 
 inline static void atomic_exclusive_load_pair_aquire(uint32_t atomic[2], uint32_t transfer[2])
 {
-	uint64_t pair;
-	asm volatile("ldrexd %Q0, %R0, [%1]\n\t "  // load exclusive register pair
-				 "dmb"						   // full memory fence
-				 : "=r"(pair)				   // transfer register pair
-				 : "r"(&atomic[0])			   // atomic base register
-				 : "memory");				   // "memory" acts as compiler r/w barrier
-	transfer[0] = static_cast<uint32_t>(pair);
-	transfer[1] = static_cast<uint32_t>(pair >> 32);
+    uint64_t pair;
+    asm volatile("ldrexd %Q0, %R0, [%1]\n\t "  // load exclusive register pair
+                 "dmb"                         // full memory fence
+                 : "=r"(pair)                  // transfer register pair
+                 : "r"(&atomic[0])             // atomic base register
+                 : "memory");                  // "memory" acts as compiler r/w barrier
+    transfer[0] = static_cast<uint32_t>(pair);
+    transfer[1] = static_cast<uint32_t>(pair >> 32);
 }
 
 inline static bool atomic_exclusive_store_pair_release(uint32_t atomic[2], const uint32_t transfer[2])
 {
-	const uint64_t pair = static_cast<const uint64_t>(transfer[0]) | (static_cast<const uint64_t>(transfer[1]) << 32);
-	uint32_t failed;						  // native size of result
-	asm volatile("dmb\n\t"					  // full memory fence
-				 "strexd %0, %Q1, %R1, [%2]"  // store exclusive register pair, returning status
-				 : "=&r"(failed)	// store result, early clobber: prevent double usage with transfer/base registers
-				 : "r"(pair),		// transfer register pair
-				   "r"(&atomic[0])	// atomic base register
-				 : "memory");		// "memory" acts as compiler r/w barrier
-	return (failed != 0);
+    const uint64_t pair = static_cast<const uint64_t>(transfer[0]) | (static_cast<const uint64_t>(transfer[1]) << 32);
+    uint32_t failed;                          // native size of result
+    asm volatile("dmb\n\t"                    // full memory fence
+                 "strexd %0, %Q1, %R1, [%2]"  // store exclusive register pair, returning status
+                 : "=&r"(failed)    // store result, early clobber: prevent double usage with transfer/base registers
+                 : "r"(pair),       // transfer register pair
+                   "r"(&atomic[0])  // atomic base register
+                 : "memory");       // "memory" acts as compiler r/w barrier
+    return (failed != 0);
 }
 
 #else  // ARMv6K
 
 #error "memory barrier code still missing for ARMv6K"
 
-#endif	// ARMv6K
+#endif  // ARMv6K
 
-#endif	// __arm__
+#endif  // __arm__
 
 }  // namespace ConcurrentFW
 
-#endif	// __arm__ || defined __aarch64__
+#endif  // __arm__ || defined __aarch64__
 
-#endif	// CONCURRENTFW_ATOMIC_ASM_ARM_HPP_
+#endif  // CONCURRENTFW_ATOMIC_ASM_ARM_HPP_

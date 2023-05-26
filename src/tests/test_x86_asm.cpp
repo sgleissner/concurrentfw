@@ -24,12 +24,12 @@ void slow_atomic_dw_store(uint64_t atomic[2], const uint64_t desired[2]);
 
 void fast_atomic_dw_load(uint64_t atomic[2], uint64_t target[2])
 {
-	ConcurrentFW::atomic_dw_load(atomic, target);
+    ConcurrentFW::atomic_dw_load(atomic, target);
 }
 
 void fast_atomic_dw_store(uint64_t atomic[2], const uint64_t desired[2])
 {
-	ConcurrentFW::atomic_dw_store(atomic, desired);
+    ConcurrentFW::atomic_dw_store(atomic, desired);
 }
 
 #endif
@@ -41,12 +41,12 @@ void slow_atomic_dw_store(uint32_t atomic[2], const uint32_t desired[2]);
 
 void fast_atomic_dw_load(uint32_t atomic[2], uint32_t target[2])
 {
-	ConcurrentFW::atomic_dw_load(atomic, target);
+    ConcurrentFW::atomic_dw_load(atomic, target);
 }
 
 void fast_atomic_dw_store(uint32_t atomic[2], const uint32_t desired[2])
 {
-	ConcurrentFW::atomic_dw_store(atomic, desired);
+    ConcurrentFW::atomic_dw_store(atomic, desired);
 }
 
 #endif
@@ -56,24 +56,24 @@ void fast_atomic_dw_store(uint32_t atomic[2], const uint32_t desired[2])
 
 TEST_CASE("check of x86 64 bit double word cas", "[x86]")
 {
-	alignas(16) uint64_t atomic[2] {0xDEADBEEF01234567, 0x1CEDCAFE89ABCDEF};
+    alignas(16) uint64_t atomic[2] {0xDEADBEEF01234567, 0x1CEDCAFE89ABCDEF};
 
-	uint64_t fast_result[2] {1, 2};
-	fast_atomic_dw_load(atomic, fast_result);
+    uint64_t fast_result[2] {1, 2};
+    fast_atomic_dw_load(atomic, fast_result);
 
-	uint64_t slow_result[2] {3, 4};
-	slow_atomic_dw_load(atomic, slow_result);
+    uint64_t slow_result[2] {3, 4};
+    slow_atomic_dw_load(atomic, slow_result);
 
-	CHECK(((fast_result[0] == slow_result[0]) && (fast_result[1] == slow_result[1])));
+    CHECK(((fast_result[0] == slow_result[0]) && (fast_result[1] == slow_result[1])));
 
-	uint64_t store_value[2] {0x0123456789ABCDEF, 0xFEDCBA9876543210};
-	alignas(16) uint64_t fast_atomic[2] {5, 6};
-	fast_atomic_dw_store(fast_atomic, store_value);
+    uint64_t store_value[2] {0x0123456789ABCDEF, 0xFEDCBA9876543210};
+    alignas(16) uint64_t fast_atomic[2] {5, 6};
+    fast_atomic_dw_store(fast_atomic, store_value);
 
-	alignas(16) uint64_t slow_atomic[2] {7, 8};
-	slow_atomic_dw_store(slow_atomic, store_value);
+    alignas(16) uint64_t slow_atomic[2] {7, 8};
+    slow_atomic_dw_store(slow_atomic, store_value);
 
-	CHECK(((fast_atomic[0] == slow_atomic[0]) && (fast_atomic[1] == slow_atomic[1])));
+    CHECK(((fast_atomic[0] == slow_atomic[0]) && (fast_atomic[1] == slow_atomic[1])));
 }
 
 #endif
@@ -82,24 +82,24 @@ TEST_CASE("check of x86 64 bit double word cas", "[x86]")
 
 TEST_CASE("check of x86 32 bit double word cas", "[x86]")
 {
-	alignas(8) uint32_t atomic[2] {0xDEADBEEF, 0x1CEDCAFE};
+    alignas(8) uint32_t atomic[2] {0xDEADBEEF, 0x1CEDCAFE};
 
-	uint32_t fast_result[2] {1, 2};
-	fast_atomic_dw_load(atomic, fast_result);
+    uint32_t fast_result[2] {1, 2};
+    fast_atomic_dw_load(atomic, fast_result);
 
-	uint32_t slow_result[2] {3, 4};
-	slow_atomic_dw_load(atomic, slow_result);
+    uint32_t slow_result[2] {3, 4};
+    slow_atomic_dw_load(atomic, slow_result);
 
-	CHECK(((fast_result[0] == slow_result[0]) && (fast_result[1] == slow_result[1])));
+    CHECK(((fast_result[0] == slow_result[0]) && (fast_result[1] == slow_result[1])));
 
-	uint32_t store_value[2] {0x01234567, 0xFEDCBA98};
-	alignas(16) uint32_t fast_atomic[2] {5, 6};
-	fast_atomic_dw_store(fast_atomic, store_value);
+    uint32_t store_value[2] {0x01234567, 0xFEDCBA98};
+    alignas(16) uint32_t fast_atomic[2] {5, 6};
+    fast_atomic_dw_store(fast_atomic, store_value);
 
-	alignas(16) uint32_t slow_atomic[2] {7, 8};
-	slow_atomic_dw_store(slow_atomic, store_value);
+    alignas(16) uint32_t slow_atomic[2] {7, 8};
+    slow_atomic_dw_store(slow_atomic, store_value);
 
-	CHECK(((fast_atomic[0] == slow_atomic[0]) && (fast_atomic[1] == slow_atomic[1])));
+    CHECK(((fast_atomic[0] == slow_atomic[0]) && (fast_atomic[1] == slow_atomic[1])));
 }
 
 #endif

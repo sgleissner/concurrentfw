@@ -25,13 +25,14 @@ namespace ConcurrentFW
 // prevent compiler reordering, does not affect CPU reordering
 static ALWAYS_INLINE void compiler_barrier()
 {
-	asm volatile("" ::: "memory");
+    asm volatile("" ::
+                     : "memory");
 }
 
 enum class PlatformWidth : unsigned char
 {
-	WIDTH_32 = 32,
-	WIDTH_64 = 64
+    WIDTH_32 = 32,
+    WIDTH_64 = 64
 };
 
 // platform helpers

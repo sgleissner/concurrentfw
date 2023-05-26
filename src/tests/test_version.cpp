@@ -12,11 +12,11 @@
 
 TEST_CASE("check of version number", "[version]")
 {
-	INFO(
-		"version: " << ConcurrentFW::Version::MAJOR << "." << ConcurrentFW::Version::MINOR << "."
-					<< ConcurrentFW::Version::PATCH
-	);
-	CHECK(ConcurrentFW::Version::MAJOR == 0);
-	CHECK(ConcurrentFW::Version::MINOR == 0);
-	CHECK(ConcurrentFW::Version::PATCH == 5);
+    INFO(
+        "version: " << ConcurrentFW::Version::MAJOR << "." << ConcurrentFW::Version::MINOR << "."
+                    << ConcurrentFW::Version::PATCH
+    );
+    CHECK(ConcurrentFW::Version::MAJOR == 0);
+    CHECK(ConcurrentFW::Version::MINOR == 0);
+    CHECK(ConcurrentFW::Version::PATCH == 5);
 }
