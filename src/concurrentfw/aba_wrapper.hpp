@@ -1,9 +1,9 @@
 /*
- * concurrentfw/aba_wrapper.h
+ * concurrentfw/aba_wrapper.hpp
  *
  * (C) 2017-2022 by Simon Gleissner <simon@gleissner.de>, http://concurrentfw.de
  *
- * This file is distributed under the ISC license, see file LICENSE.
+ * This file is distributed under the MIT license, see file LICENSE.
  */
 
 // for a description of the ABA problem, please see: https://en.wikipedia.org/wiki/ABA_problem

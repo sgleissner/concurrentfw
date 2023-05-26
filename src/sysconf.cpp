@@ -1,6 +1,10 @@
-//
-// Created by simon on 22.02.23.
-//
+/*
+ * sysconf.cpp
+ *
+ * (C) 2023 by Simon Gleissner <simon@gleissner.de>, http://concurrentfw.de
+ *
+ * This file is distributed under the MIT license, see file LICENSE.
+ */
 
 #include <climits>
 

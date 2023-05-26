@@ -1,9 +1,9 @@
 /*
- * concurrentfw/atomic_asm_dwcas_llsc.h
+ * concurrentfw/atomic_asm_dwcas_llsc.hpp
  *
  * (C) 2017-2023 by Simon Gleissner <simon@gleissner.de>, http://concurrentfw.de
  *
- * This file is distributed under the ISC license, see file LICENSE.
+ * This file is distributed under the MIT license, see file LICENSE.
  */
 
 #pragma once

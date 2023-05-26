@@ -1,9 +1,12 @@
-//
-// Created by simon on 14.10.22.
-//
+/*
+ * concurrentfw/stack.hpp
+ *
+ * (C) 2023 by Simon Gleissner <simon@gleissner.de>, http://concurrentfw.de
+ *
+ * This file is distributed under the MIT license, see file LICENSE.
+ */
 
 #pragma once
-#include <type_traits>
 #ifndef CONCURRENTFW_STACK_HPP
 #define CONCURRENTFW_STACK_HPP
 
@@ -11,6 +14,7 @@
 #include <new>         // std::hardware_destructive_interference_size
 #include <cstddef>     // offsetof()
 #include <optional>    // std::optional
+#include <type_traits>
 
 #include <concurrentfw/aba_wrapper.hpp>
 

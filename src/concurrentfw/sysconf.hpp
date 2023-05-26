@@ -1,10 +1,14 @@
-//
-// Created by simon on 22.02.23.
-//
+/*
+ * concurrentfw/sysconf.hpp
+ *
+ * (C) 2023 by Simon Gleissner <simon@gleissner.de>, http://concurrentfw.de
+ *
+ * This file is distributed under the MIT license, see file LICENSE.
+ */
 
 #pragma once
-#ifndef SYSCONF_HPP
-#define SYSCONF_HPP
+#ifndef CONCURRENTFW_SYSCONF_HPP
+#define CONCURRENTFW_SYSCONF_HPP
 
 #include <cstddef>
 #include <system_error>
@@ -29,4 +33,4 @@ size_t page_size();
 
 }  // namespace ConcurrentFW
 
-#endif  // SYSCONF_HPP
+#endif  // CONCURRENTFW_SYSCONF_HPP

@@ -1,7 +1,7 @@
 # concurrentfw
 Concurrency C++ framework for Linux
 
-published under the ISC license, see file LICENSE.
+published under the MIT license, see file LICENSE.
 
 (c) 2017-2023 Simon Gleissner <simon@gleissner.de>, http://concurrentfw.de
 
