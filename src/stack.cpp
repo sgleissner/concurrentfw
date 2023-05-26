@@ -15,7 +15,7 @@ void Stack::push(UnspecifiedBlock block)
 		throw std::invalid_argument("nullptr not allowed as block");
 
 	stack.modify(
-		[block](const UnspecifiedBlock& stack_cached, UnspecifiedBlock& stack_modify) -> bool
+		[block](const UnspecifiedBlock& stack_cached, UnspecifiedBlock& stack_modify)
 		{
 			*reinterpret_cast<UnspecifiedBlock*>(block) = stack_cached;
 			stack_modify = block;
@@ -36,7 +36,7 @@ void* Stack::pop()
 {
 	UnspecifiedBlock top;  // will always be initialized in lambda
 	stack.modify(
-		[&top](const UnspecifiedBlock& stack_cached, UnspecifiedBlock& stack_modify) -> bool
+		[&top](const UnspecifiedBlock& stack_cached, UnspecifiedBlock& stack_modify)
 		{
 			top = stack_cached;
 			if (top == nullptr) [[unlikely]]
