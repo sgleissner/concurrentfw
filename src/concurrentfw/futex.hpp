@@ -62,7 +62,7 @@ public:
 	};
 
 protected:
-	FutexBase(int init) noexcept
+	explicit FutexBase(int init) noexcept
 	: value(init)
 	{}
 
