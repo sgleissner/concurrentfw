@@ -74,7 +74,7 @@ private:
 	WrapperContent content;
 
 public:
-	ABA_Wrapper(T init)
+	explicit ABA_Wrapper(T init)
 	{
 		WrapperContent wrapper_init;
 		wrapper_init.data = init;
