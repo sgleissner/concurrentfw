@@ -37,8 +37,17 @@ public:
 };
 
 template<typename T>
-void Concurrent_Ptr<T>::set(T* const ptr)
+void Concurrent_Ptr<T>::set [[ATTRIBUTE_ABA_LOOP_OPTIMIZE]] (T* const ptr)
 {
+	aba_ptr.modify(
+		[&](T* const& /* ptr_cached */, T*& ptr_modify) -> bool
+		{
+			ptr_modify = ptr;
+			return true;
+		}
+	);	// will be completely inlined including lambda
+
+#if 0
 	// GCC: lamdas in function pointers can be inlined completely, but must not have captures
 	bool (*inlined_modify_func)(T* const&, T*&, T* const) =	 // implicit conversion of lambda to function pointer
 		[](T* const& /* ptr_cached */, T*& ptr_modify, T* const ptr_init) -> bool
@@ -47,8 +56,8 @@ void Concurrent_Ptr<T>::set(T* const ptr)
 		return true;
 	};
 
-	aba_ptr.modify(inlined_modify_func, ptr);  // will be completely inlined including lambda
-
+	aba_ptr.modify_funcptr(inlined_modify_func, ptr);  // will be completely inlined including lambda
+#endif
 	/*	clang-format off
 	 *	compiles to (GCC 10.x x86_64):
 	 *

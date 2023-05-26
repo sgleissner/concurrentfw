@@ -18,5 +18,5 @@ TEST_CASE("check of version number", "[version]")
 	);
 	CHECK(ConcurrentFW::Version::MAJOR == 0);
 	CHECK(ConcurrentFW::Version::MINOR == 0);
-	CHECK(ConcurrentFW::Version::PATCH == 4);
+	CHECK(ConcurrentFW::Version::PATCH == 5);
 }

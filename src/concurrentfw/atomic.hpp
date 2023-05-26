@@ -29,7 +29,7 @@ namespace ConcurrentFW
 // possible memory orders (as enum)
 //////////////////////////////////////////////////////////////////////////
 
-enum AtomicMemoryOrder : int
+enum class AtomicMemoryOrder : int
 {
 	RELAXED = __ATOMIC_RELAXED,
 	CONSUME = __ATOMIC_CONSUME,
@@ -39,6 +39,10 @@ enum AtomicMemoryOrder : int
 	SEQ_CST = __ATOMIC_SEQ_CST
 };
 
+static consteval int memorder(AtomicMemoryOrder atomic_memory_order)
+{
+	return static_cast<int>(atomic_memory_order);
+}
 
 //////////////////////////////////////////////////////////////////////////
 // allowed memory orders (as concepts)
@@ -79,28 +83,26 @@ template<AtomicBaseType T>
 struct alignas(sizeof(T)) Atomic
 {
 	static_assert(std::is_integral<T>() || std::is_pointer<T>(), "<T> must be integral type or pointer");
-	static_assert(__atomic_always_lock_free(sizeof(T), 0), "built-in atomic is not always lock free");
+	static_assert(__atomic_always_lock_free(sizeof(T), nullptr), "built-in atomic is not always lock free");
 
 	//////////////////////////////////////////////////////////////////////////
 	// atomic value
 	//////////////////////////////////////////////////////////////////////////
 
-	volatile T atomic;	// accessible from outside
+	volatile T atomic;	// NOSONAR accessible from outside
 
 	//////////////////////////////////////////////////////////////////////////
 	// constructors
 	//////////////////////////////////////////////////////////////////////////
 
-	Atomic() noexcept
-	{}	// atomic is uninitialized
+	Atomic() = default;	 // atomic is uninitialized
 
 	Atomic(const T value) noexcept
 	{
-		store<RELAXED>(value);
+		store<AtomicMemoryOrder::RELAXED>(value);
 	}
 
-	~Atomic() noexcept
-	{}
+	~Atomic() = default;
 
 	//////////////////////////////////////////////////////////////////////////
 	// load, store
@@ -111,7 +113,7 @@ struct alignas(sizeof(T)) Atomic
 	ALWAYS_INLINE T load() const noexcept
 	{
 		compiler_barrier();
-		T retval = __atomic_load_n(&atomic, MEMORDER);
+		T retval = __atomic_load_n(&atomic, memorder(MEMORDER));
 		compiler_barrier();
 		return retval;
 	}
@@ -121,7 +123,7 @@ struct alignas(sizeof(T)) Atomic
 	ALWAYS_INLINE void store(const T store) noexcept
 	{
 		compiler_barrier();
-		__atomic_store_n(&atomic, store, MEMORDER);
+		__atomic_store_n(&atomic, store, memorder(MEMORDER));
 		compiler_barrier();
 	}
 
@@ -133,7 +135,7 @@ struct alignas(sizeof(T)) Atomic
 	ALWAYS_INLINE T exchange(const T exchange) noexcept
 	{
 		compiler_barrier();
-		T retval = __atomic_exchange_n(&atomic, exchange, MEMORDER);
+		T retval = __atomic_exchange_n(&atomic, exchange, memorder(MEMORDER));
 		compiler_barrier();
 		return retval;
 	}
@@ -146,7 +148,7 @@ struct alignas(sizeof(T)) Atomic
 	{
 		compiler_barrier();
 		bool retval = __atomic_compare_exchange_n(
-			&atomic, &expected, desired, true /* weak */, MEMORDER_SUCCESS, MEMORDER_FAILURE
+			&atomic, &expected, desired, true /* weak */, memorder(MEMORDER_SUCCESS), memorder(MEMORDER_FAILURE)
 		);
 		compiler_barrier();
 		return retval;
@@ -160,7 +162,7 @@ struct alignas(sizeof(T)) Atomic
 	{
 		compiler_barrier();
 		bool retval = __atomic_compare_exchange_n(
-			&atomic, &expected, desired, false /* strong */, MEMORDER_SUCCESS, MEMORDER_FAILURE
+			&atomic, &expected, desired, false /* strong */, memorder(MEMORDER_SUCCESS), memorder(MEMORDER_FAILURE)
 		);
 		compiler_barrier();
 		return retval;
@@ -174,7 +176,7 @@ struct alignas(sizeof(T)) Atomic
 	ALWAYS_INLINE T add_fetch(const T value) noexcept
 	{
 		compiler_barrier();
-		T retval = __atomic_add_fetch(&atomic, value, MEMORDER);
+		T retval = __atomic_add_fetch(&atomic, value, memorder(MEMORDER));
 		compiler_barrier();
 		return retval;
 	}
@@ -183,7 +185,7 @@ struct alignas(sizeof(T)) Atomic
 	ALWAYS_INLINE T fetch_add(const T value) noexcept
 	{
 		compiler_barrier();
-		T retval = __atomic_fetch_add(&atomic, value, MEMORDER);
+		T retval = __atomic_fetch_add(&atomic, value, memorder(MEMORDER));
 		compiler_barrier();
 		return retval;
 	}
@@ -192,7 +194,7 @@ struct alignas(sizeof(T)) Atomic
 	ALWAYS_INLINE T sub_fetch(const T value) noexcept
 	{
 		compiler_barrier();
-		T retval = __atomic_sub_fetch(&atomic, value, MEMORDER);
+		T retval = __atomic_sub_fetch(&atomic, value, memorder(MEMORDER));
 		compiler_barrier();
 		return retval;
 	}
@@ -201,7 +203,7 @@ struct alignas(sizeof(T)) Atomic
 	ALWAYS_INLINE T fetch_sub(const T value) noexcept
 	{
 		compiler_barrier();
-		T retval = __atomic_fetch_sub(&atomic, value, MEMORDER);
+		T retval = __atomic_fetch_sub(&atomic, value, memorder(MEMORDER));
 		compiler_barrier();
 		return retval;
 	}
@@ -210,7 +212,7 @@ struct alignas(sizeof(T)) Atomic
 	ALWAYS_INLINE T and_fetch(const T value) noexcept
 	{
 		compiler_barrier();
-		T retval = __atomic_and_fetch(&atomic, value, MEMORDER);
+		T retval = __atomic_and_fetch(&atomic, value, memorder(MEMORDER));
 		compiler_barrier();
 		return retval;
 	}
@@ -219,7 +221,7 @@ struct alignas(sizeof(T)) Atomic
 	ALWAYS_INLINE T fetch_and(const T value) noexcept
 	{
 		compiler_barrier();
-		T retval = __atomic_fetch_and(&atomic, value, MEMORDER);
+		T retval = __atomic_fetch_and(&atomic, value, memorder(MEMORDER));
 		compiler_barrier();
 		return retval;
 	}
@@ -228,7 +230,7 @@ struct alignas(sizeof(T)) Atomic
 	ALWAYS_INLINE T xor_fetch(const T value) noexcept
 	{
 		compiler_barrier();
-		T retval = __atomic_xor_fetch(&atomic, value, MEMORDER);
+		T retval = __atomic_xor_fetch(&atomic, value, memorder(MEMORDER));
 		compiler_barrier();
 		return retval;
 	}
@@ -237,7 +239,7 @@ struct alignas(sizeof(T)) Atomic
 	ALWAYS_INLINE T fetch_xor(const T value) noexcept
 	{
 		compiler_barrier();
-		T retval = __atomic_fetch_xor(&atomic, value, MEMORDER);
+		T retval = __atomic_fetch_xor(&atomic, value, memorder(MEMORDER));
 		compiler_barrier();
 		return retval;
 	}
@@ -246,7 +248,7 @@ struct alignas(sizeof(T)) Atomic
 	ALWAYS_INLINE T or_fetch(const T value) noexcept
 	{
 		compiler_barrier();
-		T retval = __atomic_or_fetch(&atomic, value, MEMORDER);
+		T retval = __atomic_or_fetch(&atomic, value, memorder(MEMORDER));
 		compiler_barrier();
 		return retval;
 	}
@@ -255,7 +257,7 @@ struct alignas(sizeof(T)) Atomic
 	ALWAYS_INLINE T fetch_or(const T value) noexcept
 	{
 		compiler_barrier();
-		T retval = __atomic_fetch_or(&atomic, value, MEMORDER);
+		T retval = __atomic_fetch_or(&atomic, value, memorder(MEMORDER));
 		compiler_barrier();
 		return retval;
 	}
@@ -264,7 +266,7 @@ struct alignas(sizeof(T)) Atomic
 	ALWAYS_INLINE T nand_fetch(const T value) noexcept
 	{
 		compiler_barrier();
-		T retval = __atomic_nand_fetch(&atomic, value, MEMORDER);
+		T retval = __atomic_nand_fetch(&atomic, value, memorder(MEMORDER));
 		compiler_barrier();
 		return retval;
 	}
@@ -273,7 +275,7 @@ struct alignas(sizeof(T)) Atomic
 	ALWAYS_INLINE T fetch_nand(const T value) noexcept
 	{
 		compiler_barrier();
-		T retval = __atomic_fetch_nand(&atomic, value, MEMORDER);
+		T retval = __atomic_fetch_nand(&atomic, value, memorder(MEMORDER));
 		compiler_barrier();
 		return retval;
 	}
@@ -287,7 +289,7 @@ struct alignas(sizeof(T)) Atomic
 	{
 		static_assert(sizeof(T) == 1, "<T> shall only be char or bool with test_and_set()");
 		compiler_barrier();
-		T retval = __atomic_test_and_set(&atomic, MEMORDER);
+		T retval = __atomic_test_and_set(&atomic, memorder(MEMORDER));
 		compiler_barrier();
 		return retval;
 	}
@@ -298,7 +300,7 @@ struct alignas(sizeof(T)) Atomic
 	{
 		static_assert(sizeof(T) == 1, "<T> shall only be char or bool with clear()");
 		compiler_barrier();
-		__atomic_clear(&atomic, MEMORDER);
+		__atomic_clear(&atomic, memorder(MEMORDER));
 		compiler_barrier();
 	}
 };
@@ -311,7 +313,7 @@ template<AtomicMemoryOrder MEMORDER = AtomicMemoryOrder::SEQ_CST>
 static ALWAYS_INLINE void atomic_thread_fence() noexcept
 {
 	compiler_barrier();
-	__atomic_thread_fence(MEMORDER);
+	__atomic_thread_fence(memorder(MEMORDER));
 	compiler_barrier();
 }
 
@@ -319,7 +321,7 @@ template<AtomicMemoryOrder MEMORDER = AtomicMemoryOrder::SEQ_CST>
 static ALWAYS_INLINE void atomic_signal_fence() noexcept
 {
 	compiler_barrier();
-	__atomic_signal_fence(MEMORDER);
+	__atomic_signal_fence(memorder(MEMORDER));
 	compiler_barrier();
 }
 

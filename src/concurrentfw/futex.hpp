@@ -33,8 +33,12 @@
 namespace ConcurrentFW
 {
 
+class Futex;
+
 class FutexBase
 {
+	friend Futex;
+
 public:
 	enum class Op : uint8_t
 	{
@@ -62,7 +66,7 @@ public:
 	};
 
 protected:
-	FutexBase(int init) noexcept
+	explicit FutexBase(int init) noexcept
 	: value(init)
 	{}
 
@@ -87,7 +91,9 @@ protected:
 		volatile int* addr1, int op, int val1, uint32_t val2, volatile int* addr2, int val3
 	) noexcept
 	{
-		return syscall(SYS_futex, addr1, op, val1, reinterpret_cast<void*>(static_cast<uintptr_t>(val2)), addr2, val3);
+		return syscall(
+			SYS_futex, addr1, op, val1, reinterpret_cast<void*>(static_cast<uintptr_t>(val2)), addr2, val3	// NOSONAR
+		);
 	}
 
 	ALWAYS_INLINE int futex_wait(int expected, const struct timespec* timeout_relative = nullptr) noexcept
@@ -110,7 +116,7 @@ protected:
 		);
 	}
 
-	ALWAYS_INLINE int futex_wake_op(
+	ALWAYS_INLINE int futex_wake_op(  // NOSONAR
 		int wakeups1,
 		uint32_t wakeups2,
 		volatile int* address2,
@@ -129,7 +135,7 @@ protected:
 		);
 	}
 
-	ALWAYS_INLINE int futex_wait_bitset(uint32_t mask, int expected, struct timespec* timeout_absolute) noexcept
+	ALWAYS_INLINE int futex_wait_bitset(uint32_t mask, int expected, const struct timespec* timeout_absolute) noexcept
 	{
 		return static_cast<int>(syscall_futex(
 			&value.atomic, FUTEX_WAIT_BITSET_PRIVATE, expected, timeout_absolute, nullptr, static_cast<int>(mask)
@@ -143,7 +149,7 @@ protected:
 		);
 	}
 
-protected:
+private:
 	ConcurrentFW::Atomic<int> value;
 };
 

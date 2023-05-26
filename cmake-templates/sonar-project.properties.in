@@ -1,9 +1,10 @@
-sonar.projectKey=sgleissner_concurrentfw
+# @file_generated_warning@
+sonar.projectKey=sgleissner_@PROJECT_NAME@
 sonar.organization=sgleissner
 
 # This is the name and version displayed in the SonarCloud UI.
-#sonar.projectName=concurrentfw
-sonar.projectVersion=@PROJECT_VERSION@@VERSION_ADDENDUM@
+#sonar.projectName=@PROJECT_NAME@
+sonar.projectVersion=@PROJECT_VERSION@
 
 # Path is relative to the sonar-project.properties file. Replace "\" by "/" on Windows.
 sonar.sources=src/
@@ -12,6 +13,10 @@ sonar.tests=src/tests/
 
 # Encoding of the source code. Default is default system encoding
 sonar.sourceEncoding=UTF-8
+
+# allow C++23 (experimental)
+# see: https://community.sonarsource.com/t/c-23-support-sonar-scanner-unsupported-value-of-cplusplus-macro/76294/4
+sonar.cfamily.cpp23.enabled=true
 
 # disable cache
 sonar.cfamily.cache.enabled=false

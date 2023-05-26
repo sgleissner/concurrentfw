@@ -43,22 +43,16 @@ namespace ConcurrentFW
 
 #if defined(__aarch64__)
 
-inline static void atomic_exclusive_abort(volatile uint64_t& /*atomic*/)
+inline static void atomic_exclusive_abort(uint64_t& /*atomic*/)
 {
-	asm volatile  // clang-format off
-	(
-		"clrex"
-	);  // clang-format on
+	asm volatile("clrex");	// clear exclusive monitor
 }
 
 #endif
 
-inline static void atomic_exclusive_abort(volatile uint32_t& /*atomic*/)
+inline static void atomic_exclusive_abort(uint32_t& /*atomic*/)
 {
-	asm volatile  // clang-format off
-	(
-		"clrex"
-	);  // clang-format on
+	asm volatile("clrex");	// clear exclusive monitor
 }
 
 #if defined(__aarch64__)
@@ -68,115 +62,197 @@ inline static void atomic_exclusive_abort(volatile uint32_t& /*atomic*/)
 // ldaxr documentation
 // http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.100076_0100_00_en/pge1427897401219.html
 
-inline static void atomic_exclusive_load_aquire(volatile uint64_t& atomic, uint64_t& target)
+inline static void atomic_exclusive_load_aquire(uint64_t& atomic, uint64_t& transfer)
 {
-	asm volatile  // clang-format off
-	(
-		"ldaxr %0, [%1]"
-		: "=r" (target)
-		: "r" (&atomic)
-		:
-	);	// clang-format on
+	asm volatile("ldaxr %0, [%1]"  // load-acquire exclusive register
+				 : "=r"(transfer)  // transfer register
+				 : "r"(&atomic)	   // atomic base register
+				 : "memory");	   // "memory" acts as compiler r/w barrier
 }
 
-inline static void atomic_exclusive_load_aquire(volatile uint32_t& atomic, uint32_t& target)
+inline static void atomic_exclusive_load_aquire(uint32_t& atomic, uint32_t& transfer)
 {
-	asm volatile  // clang-format off
-	(
-		"ldaxr %w0, [%1]"
-		: "=r" (target)
-		: "r" (&atomic)
-		:
-	);	// clang-format on
+	asm volatile("ldaxr %w0, [%1]"	// load-acquire exclusive register
+				 : "=r"(transfer)	// transfer register
+				 : "r"(&atomic)		// atomic base register
+				 : "memory");		// "memory" acts as compiler r/w barrier
+}
+
+// ldaxp documentation
+// https://developer.arm.com/documentation/dui0802/b/A64-Data-Transfer-Instructions/LDAXP
+
+inline static void atomic_exclusive_load_pair_aquire(uint64_t atomic[2], uint64_t transfer[2])
+{
+	asm volatile("ldaxp %0, %1, [%2]"  // load-acquire exclusive register pair
+				 : "=r"(transfer[0]),  // first transfer register
+				   "=r"(transfer[1])   // second transfer register
+				 : "r"(&atomic[0])	   // atomic base register
+				 : "memory");		   // "memory" acts as compiler r/w barrier
+}
+
+inline static void atomic_exclusive_load_pair_aquire(uint32_t atomic[2], uint32_t transfer[2])
+{
+	asm volatile("ldaxp %w0, %w1, [%2]"	 // load-acquire exclusive register pair
+				 : "=r"(transfer[0]),	 // first transfer register
+				   "=r"(transfer[1])	 // second transfer register
+				 : "r"(&atomic[0])		 // atomic base register
+				 : "memory");			 // "memory" acts as compiler r/w barrier
 }
 
 // stlxr documentation
 // http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.100076_0100_00_en/pge1427897423561.html
 
-inline static bool atomic_exclusive_store_release(volatile uint64_t& atomic, const uint64_t& store)
+inline static bool atomic_exclusive_store_release(uint64_t& atomic, const uint64_t& transfer)
 {
-	bool failed;
-	asm volatile  // clang-format off
-	(
-		"stlxr %w0, %1, [%2]"
-		: "=r" (failed)
-		: "r" (store)
-		, "r" (&atomic)
-		:
-	);	// clang-format on
-	return !failed;
+	uint32_t failed;					// native size of result
+	asm volatile("stlxr %w0, %1, [%2]"	// store-release exclusive register, returning status
+				 : "=&r"(failed)   // store result, early clobber: prevent double usage with transfer/base registers
+				 : "r"(transfer),  // transfer register
+				   "r"(&atomic)	   // atomic base register
+				 : "memory");	   // "memory" acts as compiler r/w barrier
+	return (failed != 0);
 }
 
-inline static bool atomic_exclusive_store_release(volatile uint32_t& atomic, const uint32_t& store)
+inline static bool atomic_exclusive_store_release(uint32_t& atomic, const uint32_t& transfer)
 {
-	bool failed;
-	asm volatile  // clang-format off
-	(
-		"stlxr %w0, %w1, [%2]"
-		: "=r" (failed)
-		: "r" (store)
-		, "r" (&atomic)
-		:
-	);	// clang-format on
-	return !failed;
+	uint32_t failed;					 // native size of result
+	asm volatile("stlxr %w0, %w1, [%2]"	 // store-release exclusive register, returning status
+				 : "=&r"(failed)   // store result, early clobber: prevent double usage with transfer/base registers
+				 : "r"(transfer),  // transfer register
+				   "r"(&atomic)	   // atomic base register
+				 : "memory");	   // "memory" acts as compiler r/w barrier
+	return (failed != 0);
+}
+
+// stlxp documentation
+// https://developer.arm.com/documentation/dui0802/b/A64-Data-Transfer-Instructions/STLXP
+
+inline static bool atomic_exclusive_store_pair_release(uint64_t atomic[2], const uint64_t[2] transfer)
+{
+	uint32_t failed;						// native size of result
+	asm volatile("stlxp %w0, %1, %2, [%3]"	// store-release exclusive register pair, returning status
+				 : "=&r"(failed)	  // store result, early clobber: prevent double usage with transfer/base registers
+				 : "r"(transfer[0]),  // first transfer register
+				   "r"(transfer[1]),  // second transfer register
+				   "r"(&atomic[0])	  // atomic base register
+				 : "memory");		  // "memory" acts as compiler r/w barrier
+	return (failed != 0);
+}
+
+inline static bool atomic_exclusive_store_pair_release(uint32_t atomic[2], const uint32_t transfer[2])
+{
+	uint32_t failed;						  // native size of result
+	asm volatile("stlxp %w0, %w1, %w2, [%3]"  // store-release exclusive register pair, returning status
+				 : "=&r"(failed)	  // store result, early clobber: prevent double usage with transfer/base registers
+				 : "r"(transfer[0]),  // first transfer register
+				   "r"(transfer[1]),  // second transfer register
+				   "r"(&atomic[0])	  // atomic base register
+				 : "memory");		  // "memory" acts as compiler r/w barrier
+	return (failed != 0);
 }
 
 #elif defined(__arm__)
 
 #if __ARM_ARCH >= 8	 // ARMv8 and higher
 
-inline static void atomic_exclusive_load_aquire(volatile uint32_t& atomic, uint32_t& target)
+inline static void atomic_exclusive_load_aquire(uint32_t& atomic, uint32_t& transfer)
 {
-	asm volatile  // clang-format off
-	(
-		"ldaex %0, [%1]"
-		: "=r" (target)
-		: "r" (&atomic)
-		:
-	);	// clang-format on
+	asm volatile("ldaex %0, [%1]"  // load-acquire exclusive register
+				 : "=r"(transfer)  // transfer register
+				 : "r"(&atomic)	   // atomic base register
+				 : "memory");	   // "memory" acts as compiler r/w barrier
 }
 
-inline static bool atomic_exclusive_store_release(volatile uint32_t& atomic, const uint32_t& store)
+inline static bool atomic_exclusive_store_release(uint32_t& atomic, const uint32_t& transfer)
 {
-	bool failed;
-	asm volatile  // clang-format off
-	(
-		"stlex %0, %1, [%2]"
-		: "=r" (failed)
-		: "r" (store)
-		, "r" (&atomic)
-		:
-	);	// clang-format on
-	return !failed;
+	uint32_t failed;				   // native size of result
+	asm volatile("stlex %0, %1, [%2]"  // store-release exclusive register, returning status
+				 : "=&r"(failed)	   // store result, early clobber: prevent double usage with transfer/base registers
+				 : "r"(transfer),	   // transfer register
+				   "r"(&atomic)		   // atomic base register
+				 : "memory");		   // "memory" acts as compiler r/w barrier
+	return (failed != 0);
+}
+
+// register pairs ARMv8 32bit
+// https://developer.arm.com/documentation/dui0802/b/A32-and-T32-Instructions/LDAEX-and-STLEX
+// TODO: For LDAEXD and STLEXD, Rt must be an even numbered register, and not LR.
+// TODO: Rt2 must be R(t+1).
+
+inline static void atomic_exclusive_load_pair_aquire(uint32_t atomic[2], uint32_t transfer[2])
+{
+	uint64_t pair;
+	asm volatile("ldaexd %Q0, %R0, [%1]"  // load-acquire exclusive register pair
+				 : "=r"(pair)			  // transfer register pair
+				 : "r"(&atomic[0])		  // atomic base register
+				 : "memory");			  // "memory" acts as compiler r/w barrier
+	transfer[0] = static_cast<uint32_t>(pair);
+	transfer[1] = static_cast<uint32_t>(pair >> 32);
+}
+
+inline static bool atomic_exclusive_store_pair_release(uint32_t atomic[2], const uint32_t transfer[2])
+{
+	const uint64_t pair = static_cast<const uint64_t>(transfer[0]) | (static_cast<const uint64_t>(transfer[1]) << 32);
+	uint32_t failed;						  // native size of result
+	asm volatile("stlexd %0, %Q1, %R1, [%2]"  // store-release exclusive register pair
+				 : "=&r"(failed)	// store result, early clobber: prevent double usage with transfer/base registers
+				 : "r"(pair),		// transfer register pair
+				   "r"(&atomic[0])	// atomic base register
+				 : "memory");		// "memory" acts as compiler r/w barrier
+	return (failed != 0);
 }
 
 #elif __ARM_ARCH >= 7  // ARMv7
 
-inline static void atomic_exclusive_load_aquire(volatile uint32_t& atomic, uint32_t& target)
+inline static void atomic_exclusive_load_aquire(uint32_t& atomic, uint32_t& transfer)
 {
-	asm volatile  // clang-format off
-	(
-		"ldrex %0, [%1]\n\t"
-		"dmb"					// full memory fence
-		: "=r" (target)
-		: "r" (&atomic)
-		:
-	);	// clang-format on
+	asm volatile("ldrex %0, [%1]\n\t "	// load exclusive register
+				 "dmb"					// full memory fence
+				 : "=r"(transfer)		// transfer register
+				 : "r"(&atomic)			// atomic base register
+				 : "memory");			// "memory" acts as compiler r/w barrier
 }
 
-inline static bool atomic_exclusive_store_release(volatile uint32_t& atomic, const uint32_t& store)
+inline static bool atomic_exclusive_store_release(uint32_t& atomic, const uint32_t& transfer)
 {
-	bool failed;
-	asm volatile  // clang-format off
-	(
-		"dmb\n\t"				// full memory fence
-		"strex %0, %1, [%2]"
-		: "=r" (failed)
-		: "r" (store)
-		, "r" (&atomic)
-		:
-	);	// clang-format on
-	return !failed;
+	uint32_t failed;				   // native size of result
+	asm volatile("dmb\n\t"			   // full memory fence
+				 "strex %0, %1, [%2]"  // store exclusive register, returning status
+				 : "=&r"(failed)	   // store result, early clobber: prevent double usage with transfer/base registers
+				 : "r"(transfer),	   // transfer register
+				   "r"(&atomic)		   // atomic base register
+				 : "memory");		   // "memory" acts as compiler r/w barrier
+	return (failed != 0);
+}
+
+// register pairs ARMv7
+// https://developer.arm.com/documentation/dui0802/b/A32-and-T32-Instructions/LDREX-and-STREX
+// TODO: For LDREXD and STREXD, Rt must be an even numbered register, and not LR.
+// TODO: Rt2 must be R(t+1).
+
+inline static void atomic_exclusive_load_pair_aquire(uint32_t atomic[2], uint32_t transfer[2])
+{
+	uint64_t pair;
+	asm volatile("ldrexd %Q0, %R0, [%1]\n\t "  // load exclusive register pair
+				 "dmb"						   // full memory fence
+				 : "=r"(pair)				   // transfer register pair
+				 : "r"(&atomic[0])			   // atomic base register
+				 : "memory");				   // "memory" acts as compiler r/w barrier
+	transfer[0] = static_cast<uint32_t>(pair);
+	transfer[1] = static_cast<uint32_t>(pair >> 32);
+}
+
+inline static bool atomic_exclusive_store_pair_release(uint32_t atomic[2], const uint32_t transfer[2])
+{
+	const uint64_t pair = static_cast<const uint64_t>(transfer[0]) | (static_cast<const uint64_t>(transfer[1]) << 32);
+	uint32_t failed;						  // native size of result
+	asm volatile("dmb\n\t"					  // full memory fence
+				 "strexd %0, %Q1, %R1, [%2]"  // store exclusive register pair, returning status
+				 : "=&r"(failed)	// store result, early clobber: prevent double usage with transfer/base registers
+				 : "r"(pair),		// transfer register pair
+				   "r"(&atomic[0])	// atomic base register
+				 : "memory");		// "memory" acts as compiler r/w barrier
+	return (failed != 0);
 }
 
 #else  // ARMv6K
