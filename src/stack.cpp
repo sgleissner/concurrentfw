@@ -17,7 +17,7 @@ void Stack::push(UnspecifiedBlock block)
 	stack.modify(
 		[block](const UnspecifiedBlock& stack_cached, UnspecifiedBlock& stack_modify)
 		{
-			*reinterpret_cast<UnspecifiedBlock*>(block) = stack_cached;
+			*reinterpret_cast<UnspecifiedBlock*>(block) = stack_cached;  // NOSONAR
 			stack_modify = block;
 			return true;
 		}
