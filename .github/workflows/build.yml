@@ -24,7 +24,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install gcc-13 g++-13
-          # gcovr
       - name: Install gcovr 6
         run: |
           pip install gcovr
@@ -42,7 +41,6 @@ jobs:
           echo "### setup ###"
           PRJROOT=$(pwd)
           mkdir -p unittests/64
-          # mkdir -p unittests/32
           mkdir -p unittests/reports
           export CC=/usr/bin/gcc-13
           export CXX=/usr/bin/g++-13
@@ -56,7 +54,8 @@ jobs:
           echo "### run unit tests ###"
           ./concurrentfw-tests --reporter console::out=-::colour-mode=ansi --reporter SonarQube::out=../reports/unittest-x86_64.xml
           echo "### generate gcov files ###"
-          find . -name "*.gcno" | xargs gcov-13 -b -l -p -c
+          find . -name "*.gcno" -exec xargs gcov-13 -b -l -p -c \{\} \;
+          # find . -name "*.gcno" | xargs gcov-13 -b -l -p -c
           echo "### run gcovr ###"          
           gcovr -g -k --root ../.. --sonarqube ../reports/coverage-x86_64.xml --print-summary --gcov-ignore-parse-errors=negative_hits.warn_once_per_file
           popd
