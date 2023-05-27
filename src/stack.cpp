@@ -21,7 +21,7 @@ void Stack::push(UnspecifiedBlock block)
     stack.modify(
         [block](const UnspecifiedBlock& stack_cached, UnspecifiedBlock& stack_modify)
         {
-            *reinterpret_cast<UnspecifiedBlock*>(block) = stack_cached;  // NOSONAR
+            *reinterpret_cast<UnspecifiedBlock*>(block) = stack_cached;
             stack_modify = block;
             return true;
         }
@@ -45,7 +45,7 @@ Stack::UnspecifiedBlock Stack::pop()
             top = stack_cached;
             if (top == nullptr) [[unlikely]]
                 return false;
-            stack_modify = *reinterpret_cast<UnspecifiedBlock*>(top);  // NOSONAR
+            stack_modify = *reinterpret_cast<UnspecifiedBlock*>(top);
             return true;
         }
     );

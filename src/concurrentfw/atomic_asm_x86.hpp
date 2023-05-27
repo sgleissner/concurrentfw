@@ -24,7 +24,7 @@
 #define ATOMIC_DWCAS_NEEDED
 
 // The atomic loops are unlikely repeated, therefore skip the alignment overhead before the loop
-#define GNU_OPTIMIZE_ATOMIC_LOOPS_ALIGNMENT "align-loops=1"  // NOSONAR
+#define GNU_OPTIMIZE_ATOMIC_LOOPS_ALIGNMENT "align-loops=1"
 
 // see: https://www.boost.org/doc/libs/1_55_0/boost/atomic/detail/gcc-x86.hpp
 
