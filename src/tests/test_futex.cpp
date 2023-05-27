@@ -428,3 +428,12 @@ TEST_CASE("check Trylock Futex", "[futex]")
     INFO("Factor: " << speedup_factor);
     CHECK(speedup_factor >= min_speedup);
 }
+
+TEST_CASE("check Futex timeouts", "[futex]")
+{
+    ConcurrentFW::Futex futex;
+    timespec timeout {.tv_sec = 0, .tv_nsec = 1000};
+    CHECK(futex.trylock_timeout(&timeout) == true);
+    CHECK(futex.trylock_timeout(&timeout) == false);
+    futex.unlock();
+}
