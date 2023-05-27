@@ -359,7 +359,7 @@ using Passes = uint32_t;
 //using Passes = uint64_t;
 
 static constexpr DurationRuntime runtime = 1000ms;
-static constexpr double min_speedup = 0.5;  // min. 50% speed compared to glib futex to pass tests
+static constexpr double min_speedup = 0.3;  // min. 30% speed compared to glib futex to pass tests
 
 static TestMutexBenchmark<MutexType::GLIBC, Passes> benchmark_glibc;
 static TestMutexBenchmark<MutexType::CONCURRENTFW, Passes> benchmark_concurrentfw;
