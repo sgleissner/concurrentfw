@@ -113,6 +113,7 @@ set(test_sources
         src/tests/test_stack.cpp
         src/tests/test_x86_asm.cpp
         src/tests/test_x86_asm_helper.cpp
+        src/tests/test_sysconf.cpp
         )
 
 add_library(concurrentfw SHARED
