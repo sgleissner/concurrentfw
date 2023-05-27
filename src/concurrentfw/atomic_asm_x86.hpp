@@ -24,7 +24,7 @@
 #define ATOMIC_DWCAS_NEEDED
 
 // The atomic loops are unlikely repeated, therefore skip the alignment overhead before the loop
-#define GNU_OPTIMIZE_ATOMIC_LOOPS_ALIGNMENT "align-loops=1"  // NOSONAR
+#define GNU_OPTIMIZE_ATOMIC_LOOPS_ALIGNMENT "align-loops=1"
 
 // see: https://www.boost.org/doc/libs/1_55_0/boost/atomic/detail/gcc-x86.hpp
 
@@ -39,7 +39,7 @@ namespace ConcurrentFW
 
 template<AtomicMemoryOrder MEMORDER = AtomicMemoryOrder::ACQUIRE>
     requires AtomicMemoryOrderAcquireConsume<MEMORDER>
-ALWAYS_INLINE static void atomic_dw_load(uint64_t atomic[2], uint64_t target[2]) noexcept
+ALWAYS_INLINE static void atomic_dw_load(const uint64_t atomic[2], uint64_t target[2]) noexcept
 {
 #ifdef X86_64_FAST_DW_LOAD
     [[maybe_unused]] __int128_t sse_temp;         // trick allows random scratch sse register
@@ -113,7 +113,7 @@ ALWAYS_INLINE static bool atomic_dw_cas(uint64_t atomic[2], uint64_t expected[2]
 
 template<AtomicMemoryOrder MEMORDER = AtomicMemoryOrder::ACQUIRE>
     requires AtomicMemoryOrderAcquireConsume<MEMORDER>
-ALWAYS_INLINE static void atomic_dw_load(uint32_t atomic[2], uint32_t destination[2]) noexcept
+ALWAYS_INLINE static void atomic_dw_load(const uint32_t atomic[2], uint32_t destination[2]) noexcept
 {
 #if defined(__x86_64__)
     asm volatile("movq (%[ptr]), %%rax\n\t"  // guaranteed to be atomic for aligned addresses

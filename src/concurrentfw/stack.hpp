@@ -24,7 +24,7 @@ namespace ConcurrentFW
 class alignas(64) Stack  // align to cache line
 {
 public:
-    using UnspecifiedBlock = void*;  // NOSONAR an unspecified block may be any uninitialized memory block
+    using UnspecifiedBlock = void*;  // an unspecified block may be any uninitialized memory block
 
 private:
     ABA_Wrapper<UnspecifiedBlock> stack {nullptr};

@@ -93,7 +93,7 @@ struct alignas(sizeof(T)) Atomic
     // atomic value
     //////////////////////////////////////////////////////////////////////////
 
-    volatile T atomic;  // NOSONAR accessible from outside
+    volatile T atomic;  // accessible from outside
 
     //////////////////////////////////////////////////////////////////////////
     // constructors
@@ -101,7 +101,7 @@ struct alignas(sizeof(T)) Atomic
 
     Atomic() = default;  // atomic is uninitialized
 
-    Atomic(const T value) noexcept
+    explicit Atomic(const T value) noexcept
     {
         store<AtomicMemoryOrder::RELAXED>(value);
     }

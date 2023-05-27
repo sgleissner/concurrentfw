@@ -13,18 +13,16 @@ jobs:
     env:
       SONAR_SCANNER_VERSION: 4.8.0.2856  # sgl 2023-01-16
       SONAR_SERVER_URL: "https://sonarcloud.io"
-      #      SONAR_SCANNER_VERSION: 4.7.0.2747 # sgl 2022-10-13
-      #      SONAR_SERVER_URL: "https://sonarcloud.io"
+      # see https://binaries.sonarsource.com/?prefix=Distribution/sonar-scanner-cli/
       BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - name: Install gcc 13
         run: |
           sudo apt-get update
           sudo apt-get install gcc-13 g++-13
-          # gcovr
       - name: Install gcovr 6
         run: |
           pip install gcovr
@@ -42,7 +40,6 @@ jobs:
           echo "### setup ###"
           PRJROOT=$(pwd)
           mkdir -p unittests/64
-          # mkdir -p unittests/32
           mkdir -p unittests/reports
           export CC=/usr/bin/gcc-13
           export CXX=/usr/bin/g++-13
@@ -56,7 +53,8 @@ jobs:
           echo "### run unit tests ###"
           ./concurrentfw-tests --reporter console::out=-::colour-mode=ansi --reporter SonarQube::out=../reports/unittest-x86_64.xml
           echo "### generate gcov files ###"
-          find . -name "*.gcno" | xargs gcov-13 -b -l -p -c
+          find . -name "*.gcno" -exec xargs gcov-13 -b -l -p -c \{\} \;
+          # find . -name "*.gcno" | xargs gcov-13 -b -l -p -c
           echo "### run gcovr ###"          
           gcovr -g -k --root ../.. --sonarqube ../reports/coverage-x86_64.xml --print-summary --gcov-ignore-parse-errors=negative_hits.warn_once_per_file
           popd
@@ -70,11 +68,12 @@ jobs:
           # ls -al unittests/32
           # ls -al unittests/reports
       - name: Set up JDK 11
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v3
         with:
-          java-version: 11
+          distribution: 'zulu'
+          java-version: 17
       - name: Cache SonarCloud packages
-        uses: actions/cache@v1
+        uses: actions/cache@v3
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar

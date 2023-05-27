@@ -25,6 +25,7 @@
 #include <linux/futex.h>  // constants for futex syscall
 
 #include <cstdint>
+#include <bit>
 
 #include <concurrentfw/helper.hpp>
 #include <concurrentfw/atomic.hpp>
@@ -91,9 +92,7 @@ protected:
         volatile int* addr1, int op, int val1, uint32_t val2, volatile int* addr2, int val3
     ) noexcept
     {
-        return syscall(
-            SYS_futex, addr1, op, val1, reinterpret_cast<void*>(static_cast<uintptr_t>(val2)), addr2, val3  // NOSONAR
-        );
+        return syscall(SYS_futex, addr1, op, val1, std::bit_cast<void*>(static_cast<uintptr_t>(val2)), addr2, val3);
     }
 
     ALWAYS_INLINE int futex_wait(int expected, const struct timespec* timeout_relative = nullptr) noexcept
@@ -116,7 +115,7 @@ protected:
         );
     }
 
-    ALWAYS_INLINE int futex_wake_op(  // NOSONAR
+    ALWAYS_INLINE int futex_wake_op(
         int wakeups1,
         uint32_t wakeups2,
         volatile int* address2,
@@ -168,7 +167,7 @@ public:
     : FutexBase(State::UNLOCKED)
     {}
 
-    Futex(bool locked) noexcept
+    explicit Futex(bool locked) noexcept
     : FutexBase(locked ? State::LOCKED_NOWAITERS : State::UNLOCKED)
     {}
 

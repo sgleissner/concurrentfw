@@ -25,7 +25,7 @@ T sysconf(int sysconf_name)
     long result = ::sysconf(sysconf_name);
     if ((result == -1) && (errno != 0))
         throw std::system_error(errno, std::system_category(), "error in sysconf()");
-    return static_cast<size_t>(result);
+    return static_cast<T>(result);
 }
 
 size_t cache_line();

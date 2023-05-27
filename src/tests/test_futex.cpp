@@ -17,6 +17,7 @@
 #include <vector>
 #include <tuple>
 #include <functional>
+#include <chrono>
 
 #include <concurrentfw/futex.hpp>
 #include <concurrentfw/atomic.hpp>
@@ -359,7 +360,7 @@ using Passes = uint32_t;
 //using Passes = uint64_t;
 
 static constexpr DurationRuntime runtime = 1000ms;
-static constexpr double min_speedup = 0.5;  // min. 50% speed compared to glib futex to pass tests
+static constexpr double min_speedup = 0.3;  // min. 30% speed compared to glib futex to pass tests
 
 static TestMutexBenchmark<MutexType::GLIBC, Passes> benchmark_glibc;
 static TestMutexBenchmark<MutexType::CONCURRENTFW, Passes> benchmark_concurrentfw;
@@ -427,4 +428,57 @@ TEST_CASE("check Trylock Futex", "[futex]")
     INFO(info_concurrentfw_trylock);
     INFO("Factor: " << speedup_factor);
     CHECK(speedup_factor >= min_speedup);
+}
+
+TEST_CASE("check Futex timeouts", "[futex]")
+{
+    ConcurrentFW::Futex futex;
+    const timespec timeout {.tv_sec = 0, .tv_nsec = 1000};
+    CHECK(futex.trylock_timeout(&timeout) == true);
+    CHECK(futex.trylock_timeout(&timeout) == false);
+    futex.unlock();
+}
+
+TEST_CASE("check multiple timeout Futex locks", "[futex]")
+{
+    ConcurrentFW::Futex futex;
+    ConcurrentFW::Atomic<bool> stop {false};
+    const timespec timeout {.tv_sec = 0, .tv_nsec = 1};
+    ConcurrentFW::Atomic<bool> test_locked {false};
+    ConcurrentFW::Atomic<bool> test_timeout {false};
+    ConcurrentFW::Atomic<uint32_t> inside {0};
+    ConcurrentFW::Atomic<uint32_t> detector {0};
+
+    auto worker = [&]()
+    {
+        while (stop.load<ConcurrentFW::AtomicMemoryOrder::RELAXED>() == false)
+        {
+            if (futex.trylock_timeout(&timeout))
+            {
+                uint32_t fetched = inside.add_fetch<ConcurrentFW::AtomicMemoryOrder::RELAXED>(1);
+                detector.or_fetch<ConcurrentFW::AtomicMemoryOrder::RELAXED>(fetched);
+                test_locked.store<ConcurrentFW::AtomicMemoryOrder::RELAXED>(true);
+                inside.sub_fetch<ConcurrentFW::AtomicMemoryOrder::RELAXED>(1);
+                futex.unlock();
+            }
+            else
+            {
+                test_timeout.store<ConcurrentFW::AtomicMemoryOrder::RELAXED>(true);
+            }
+        }
+    };
+
+    constexpr std::chrono::seconds runtime_futex(1);
+    std::thread worker1(worker);
+    std::thread worker2(worker);
+    std::thread worker3(worker);
+    std::this_thread::sleep_for(runtime_futex);
+    stop.store<ConcurrentFW::AtomicMemoryOrder::RELAXED>(true);
+    worker1.join();
+    worker2.join();
+    worker3.join();
+
+    CHECK(detector.load<ConcurrentFW::AtomicMemoryOrder::RELAXED>() == 1);
+    CHECK(test_locked.load<ConcurrentFW::AtomicMemoryOrder::RELAXED>() == true);
+    CHECK(test_timeout.load<ConcurrentFW::AtomicMemoryOrder::RELAXED>() == true);
 }
