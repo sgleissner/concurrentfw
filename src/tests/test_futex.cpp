@@ -17,6 +17,7 @@
 #include <vector>
 #include <tuple>
 #include <functional>
+#include <chrono>
 
 #include <concurrentfw/futex.hpp>
 #include <concurrentfw/atomic.hpp>
@@ -432,8 +433,44 @@ TEST_CASE("check Trylock Futex", "[futex]")
 TEST_CASE("check Futex timeouts", "[futex]")
 {
     ConcurrentFW::Futex futex;
-    timespec timeout {.tv_sec = 0, .tv_nsec = 1000};
+    const timespec timeout {.tv_sec = 0, .tv_nsec = 1000};
     CHECK(futex.trylock_timeout(&timeout) == true);
     CHECK(futex.trylock_timeout(&timeout) == false);
     futex.unlock();
+}
+
+TEST_CASE("check multiple timeout Futex locks", "[futex]")
+{
+    ConcurrentFW::Futex futex;
+    ConcurrentFW::Atomic<bool> stop {false};
+    const timespec timeout {.tv_sec = 0, .tv_nsec = 1};
+    ConcurrentFW::Atomic<bool> test_locked {false};
+    ConcurrentFW::Atomic<bool> test_timeout {false};
+
+    auto worker = [&]()
+    {
+        while (stop.load<ConcurrentFW::AtomicMemoryOrder::RELAXED>() == false)
+        {
+            if (futex.trylock_timeout(&timeout))
+            {
+                test_locked.store<ConcurrentFW::AtomicMemoryOrder::RELAXED>(true);
+                futex.unlock();
+            }
+            else
+            {
+                test_timeout.store<ConcurrentFW::AtomicMemoryOrder::RELAXED>(true);
+            }
+        }
+    };
+
+    constexpr std::chrono::seconds runtime_futex(1);
+    std::thread worker1(worker);
+    std::thread worker2(worker);
+    std::this_thread::sleep_for(runtime_futex);
+    stop.store<ConcurrentFW::AtomicMemoryOrder::RELAXED>(true);
+    worker1.join();
+    worker2.join();
+
+    CHECK(test_locked.load<ConcurrentFW::AtomicMemoryOrder::RELAXED>() == true);
+    CHECK(test_timeout.load<ConcurrentFW::AtomicMemoryOrder::RELAXED>() == true);
 }
