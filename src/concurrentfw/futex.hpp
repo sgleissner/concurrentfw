@@ -167,7 +167,7 @@ public:
     : FutexBase(State::UNLOCKED)
     {}
 
-    Futex(bool locked) noexcept
+    explicit Futex(bool locked) noexcept
     : FutexBase(locked ? State::LOCKED_NOWAITERS : State::UNLOCKED)
     {}
 
