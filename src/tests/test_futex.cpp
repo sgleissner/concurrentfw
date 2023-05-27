@@ -446,6 +446,8 @@ TEST_CASE("check multiple timeout Futex locks", "[futex]")
     const timespec timeout {.tv_sec = 0, .tv_nsec = 1};
     ConcurrentFW::Atomic<bool> test_locked {false};
     ConcurrentFW::Atomic<bool> test_timeout {false};
+    ConcurrentFW::Atomic<uint32_t> inside {0};
+    ConcurrentFW::Atomic<uint32_t> detector {0};
 
     auto worker = [&]()
     {
@@ -453,7 +455,10 @@ TEST_CASE("check multiple timeout Futex locks", "[futex]")
         {
             if (futex.trylock_timeout(&timeout))
             {
+                uint32_t fetched = inside.add_fetch<ConcurrentFW::AtomicMemoryOrder::RELAXED>(1);
+                detector.or_fetch<ConcurrentFW::AtomicMemoryOrder::RELAXED>(fetched);
                 test_locked.store<ConcurrentFW::AtomicMemoryOrder::RELAXED>(true);
+                inside.sub_fetch<ConcurrentFW::AtomicMemoryOrder::RELAXED>(1);
                 futex.unlock();
             }
             else
@@ -466,11 +471,14 @@ TEST_CASE("check multiple timeout Futex locks", "[futex]")
     constexpr std::chrono::seconds runtime_futex(1);
     std::thread worker1(worker);
     std::thread worker2(worker);
+    std::thread worker3(worker);
     std::this_thread::sleep_for(runtime_futex);
     stop.store<ConcurrentFW::AtomicMemoryOrder::RELAXED>(true);
     worker1.join();
     worker2.join();
+    worker3.join();
 
+    CHECK(detector.load<ConcurrentFW::AtomicMemoryOrder::RELAXED>() == 1);
     CHECK(test_locked.load<ConcurrentFW::AtomicMemoryOrder::RELAXED>() == true);
     CHECK(test_timeout.load<ConcurrentFW::AtomicMemoryOrder::RELAXED>() == true);
 }
