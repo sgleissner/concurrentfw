@@ -7,7 +7,7 @@ cmake_policy(SET CMP0048 NEW)
 # TODO: more robust install
 
 project(concurrentfw
-        VERSION 0.0.5
+        VERSION 0.0.6
         DESCRIPTION "C++ Concurrent Framework"
         HOMEPAGE_URL "http://concurrentfw.de"
         LANGUAGES CXX
